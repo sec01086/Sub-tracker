@@ -25,7 +25,8 @@ header h1{margin:0;font-size:17px}
 h2{margin:0 0 16px;font-size:17px;color:var(--pc);text-align:center}
 .ig{margin-bottom:13px;position:relative}
 .ig label{display:block;margin-bottom:4px;font-weight:700;font-size:13px}
-input[type=text],input[type=number],input[type=password],select{width:100%;padding:11px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font-size:15px}
+input[type=text],input[type=number],input[type=password],select,textarea{width:100%;padding:11px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font-size:15px}
+textarea{resize:vertical;min-height:120px;font-family:'IBM Plex Mono',monospace;line-height:1.6}
 .mono{font-family:'IBM Plex Mono',monospace!important;font-weight:700;letter-spacing:1px;color:var(--pc)!important}
 /* suggestions */
 .sugg{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--bd);border-radius:8px;box-shadow:0 4px 14px var(--sh);z-index:1000;max-height:200px;overflow-y:auto;display:none;margin-top:4px}
@@ -119,7 +120,24 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 .my-pin{background:#e74c3c}
 .pin-popup{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--pc);line-height:1.4}
 .pin-popup .pl{font-size:11px;color:#555;font-family:'Segoe UI',sans-serif;font-weight:400}
+/* ── Bulk Add ── */
+.bulk-box{background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.3);border-radius:10px;padding:14px;margin-top:14px}
+.bulk-box h4{margin:0 0 10px;font-size:14px;color:#27ae60}
+.bulk-hint{font-size:11px;color:#888;margin:-4px 0 10px;line-height:1.5}
+.bulk-count{font-size:12px;font-weight:700;color:var(--pc);margin-bottom:8px}
+.bulk-loc-row{display:flex;gap:8px;align-items:stretch}
+.bulk-loc-row input{flex:1}
+.bulk-loc-row button{width:auto;margin:0;padding:11px 14px;white-space:nowrap}
+.bulk-preview{max-height:140px;overflow-y:auto;border:1px solid var(--bd);border-radius:8px;margin-top:10px;display:none}
+.bulk-preview .bp-item{padding:6px 12px;border-bottom:1px solid var(--bd);font-family:'IBM Plex Mono',monospace;font-size:12px;display:flex;justify-content:space-between;gap:8px}
+.bulk-preview .bp-item:last-child{border-bottom:none}
+.bulk-preview .bp-num{color:var(--pc);font-weight:700}
+.bulk-preview .bp-dup{font-size:10px;color:#e67e22;font-weight:700}
+.bulk-preview .bp-new{font-size:10px;color:#27ae60;font-weight:700}
 </style>
+  <meta property="og:image" content="https://bolt.new/static/og_default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
 </head>
 <body>
 
@@ -202,6 +220,59 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       <h2 id="add-title">নতুন লোকেশন সেট করুন</h2>
       <div id="vblock" class="vblock" style="display:none">🚫 আপনার Role: Viewer — ডাটা Add করার অনুমতি নেই।</div>
       <div id="add-form">
+        <button id="btn-bulk-toggle" class="btn btn-green" style="margin-bottom:14px" onclick="toggleAddBulk()">➕ একই লোকেশনে একাধিক নাম্বার যোগ করুন</button>
+
+        <!-- ══ Inline Bulk Panel (Add page) ══ -->
+        <div id="add-bulk-panel" class="bulk-box" style="display:none">
+          <h4>➕ একই লোকেশনে একাধিক সাবস্ক্রিপশন</h4>
+          <p class="bulk-hint">রেঞ্জ দিয়ে অটো-জেনারেট করুন অথবা প্রতি লাইনে একটি করে নাম্বার লিখুন।</p>
+
+          <div style="background:rgba(43,87,154,.06);border:1px solid rgba(43,87,154,.25);border-radius:8px;padding:12px;margin-bottom:12px">
+            <label style="font-size:12px;font-weight:700;color:var(--pc);display:block;margin-bottom:4px">বেস সাবস্ক্রিপশন নাম্বার (শেষ ৩ ডিজিট বাদে):</label>
+            <input type="text" id="add-range-base" class="mono" placeholder="123/45/" inputmode="decimal" style="margin-bottom:10px">
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <div style="flex:1">
+                <label style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">কত থেকে:</label>
+                <input type="number" id="add-range-from" placeholder="1" inputmode="numeric">
+              </div>
+              <div style="flex:1">
+                <label style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">কত পর্যন্ত:</label>
+                <input type="number" id="add-range-to" placeholder="10" inputmode="numeric">
+              </div>
+            </div>
+            <label style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">ব্যতিক্রম নাম্বার (কমা দিয়ে, ঐচ্ছিক):</label>
+            <input type="text" id="add-range-exclude" class="mono" placeholder="3, 7, 12" inputmode="numeric" style="margin-bottom:10px">
+            <div style="display:flex;gap:8px;align-items:center">
+              <label style="font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;cursor:pointer">
+                <input type="checkbox" id="add-range-pad" checked style="width:auto"> শূন্য প্যাডিং (001)
+              </label>
+            </div>
+            <button class="btn" style="margin-top:10px;background:var(--pc);padding:10px;font-size:13px" onclick="generateRangeAdd()">⚡ রেঞ্জ থেকে অটো-জেনারেট করুন</button>
+          </div>
+
+          <div class="ig" style="margin-bottom:10px">
+            <label style="font-size:12px;font-weight:700;color:#27ae60">সাবস্ক্রিপশন নাম্বার তালিকা:</label>
+            <textarea id="add-bulk-subs" class="mono" placeholder="123/45/678&#10;234/56/789&#10;345/67/890" oninput="updateAddBulkPreview()"></textarea>
+            <div class="bulk-count" id="add-bulk-count">0 টি নাম্বার</div>
+          </div>
+          <div class="ig" style="margin-bottom:10px">
+            <label style="font-size:12px;font-weight:700;color:#27ae60">লোকেশন / ঠিকানা:</label>
+            <div class="bulk-loc-row">
+              <input type="text" id="add-bulk-loc" placeholder="ঠিকানা অথবা coordinates">
+              <button class="btn btn-out" style="border-color:#27ae60;color:#27ae60" onclick="getBulkGPSAdd()">📍 GPS</button>
+            </div>
+          </div>
+          <div class="bulk-preview" id="add-bulk-preview"></div>
+          <div class="prog-wrap" id="add-bulk-prog-wrap">
+            <div class="prog-bg"><div class="prog-fill" id="add-bulk-prog-fill"></div></div>
+            <div class="prog-lbl" id="add-bulk-prog-lbl">0%</div>
+          </div>
+          <button class="btn btn-green" onclick="bulkSaveAdd()">💾 সব সেভ ও আপলোড</button>
+          <button class="btn btn-out" style="margin-top:8px" onclick="toggleAddBulk()">✖ বন্ধ করুন</button>
+        </div>
+
+        <hr class="div">
+
         <div class="ig"><label id="lbl-sub-f">সাবস্ক্রিপশন নাম্বার</label>
           <input type="text" id="f-sub" class="mono" placeholder="xxx/xx/xxx" inputmode="decimal" oninput="fmtSub(this)"></div>
         <div class="ig"><label id="lbl-st-f">স্টেশন আইডি</label>
@@ -209,6 +280,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
         <div class="ig"><label id="lbl-loc-f">লোকেশন / ঠিকানা</label>
           <input type="text" id="f-loc" placeholder="ঠিকানা অথবা coordinates"></div>
         <button id="btn-gps" class="btn btn-out" onclick="getGPS()">📍 কারেন্ট লোকেশন নিন</button>
+        <div id="gps-status" style="font-size:11px;text-align:center;margin-top:6px;display:none"></div>
         <button id="btn-save-entry" class="btn" style="margin-top:14px" onclick="saveEntry()">💾 সেভ ও আপলোড</button>
         <div class="ig" style="margin-top:14px">
           <label id="lbl-pick-map" style="font-size:12px;font-weight:700;color:var(--pc)">🗺️ ম্যাপে পিন সেট করুন:</label>
@@ -296,6 +368,55 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
           <input type="password" id="pw-pin" placeholder="নতুন ৪ সংখ্যার PIN..." maxlength="4" inputmode="numeric">
         </div>
         <button id="btn-update-pw" class="btn btn-purple" onclick="changePw()">🔐 Password ও PIN আপডেট করুন</button>
+      </div>
+
+      <!-- ══ BULK ADD (একই লোকেশনে একাধিক সাবস্ক্রিপশন) ══ -->
+      <div class="bulk-box">
+        <h4 id="bulk-add-title">➕ একই লোকেশনে একাধিক সাবস্ক্রিপশন যোগ করুন</h4>
+        <p class="bulk-hint" id="bulk-hint">নিচের যেকোনো একটি পদ্ধতি ব্যবহার করুন — রেঞ্জ দিয়ে অটো-জেনারেট করুন অথবা প্রতি লাইনে একটি করে নাম্বার লিখুন।</p>
+
+        <!-- ── রেঞ্জ জেনারেটর ── -->
+        <div style="background:rgba(43,87,154,.06);border:1px solid rgba(43,87,154,.25);border-radius:8px;padding:12px;margin-bottom:12px">
+          <label id="lbl-range-base" style="font-size:12px;font-weight:700;color:var(--pc);display:block;margin-bottom:4px">বেস সাবস্ক্রিপশন নাম্বার (শেষ ৩ ডিজিট বাদে):</label>
+          <input type="text" id="range-base" class="mono" placeholder="123/45/" inputmode="decimal" style="margin-bottom:10px">
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <div style="flex:1">
+              <label id="lbl-range-from" style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">কত থেকে:</label>
+              <input type="number" id="range-from" placeholder="1" inputmode="numeric">
+            </div>
+            <div style="flex:1">
+              <label id="lbl-range-to" style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">কত পর্যন্ত:</label>
+              <input type="number" id="range-to" placeholder="10" inputmode="numeric">
+            </div>
+          </div>
+          <label id="lbl-range-exclude" style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">ব্যতিক্রম নাম্বার (কমা দিয়ে, ঐচ্ছিক):</label>
+          <input type="text" id="range-exclude" class="mono" placeholder="3, 7, 12" inputmode="numeric" style="margin-bottom:10px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <label style="font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;cursor:pointer">
+              <input type="checkbox" id="range-pad" checked style="width:auto"> শূন্য প্যাডিং (001)
+            </label>
+          </div>
+          <button id="btn-range-gen" class="btn" style="margin-top:10px;background:var(--pc);padding:10px;font-size:13px" onclick="generateRange()">⚡ রেঞ্জ থেকে অটো-জেনারেট করুন</button>
+        </div>
+
+        <div class="ig" style="margin-bottom:10px">
+          <label id="lbl-bulk-subs" style="font-size:12px;font-weight:700;color:#27ae60">সাবস্ক্রিপশন নাম্বার তালিকা:</label>
+          <textarea id="bulk-subs" class="mono" placeholder="123/45/678&#10;234/56/789&#10;345/67/890" oninput="updateBulkPreview()"></textarea>
+          <div class="bulk-count" id="bulk-count">0 টি নাম্বার</div>
+        </div>
+        <div class="ig" style="margin-bottom:10px">
+          <label id="lbl-bulk-loc" style="font-size:12px;font-weight:700;color:#27ae60">লোকেশন / ঠিকানা:</label>
+          <div class="bulk-loc-row">
+            <input type="text" id="bulk-loc" placeholder="ঠিকানা অথবা coordinates">
+            <button class="btn btn-out" style="border-color:#27ae60;color:#27ae60" onclick="getBulkGPS()">📍 GPS</button>
+          </div>
+        </div>
+        <div class="bulk-preview" id="bulk-preview"></div>
+        <div class="prog-wrap" id="bulk-prog-wrap">
+          <div class="prog-bg"><div class="prog-fill" id="bulk-prog-fill"></div></div>
+          <div class="prog-lbl" id="bulk-prog-lbl">0%</div>
+        </div>
+        <button id="btn-bulk-save" class="btn btn-green" onclick="bulkSave()">💾 সব সেভ ও আপলোড</button>
       </div>
 
       <hr class="div">
@@ -1043,13 +1164,223 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   }
   function setLocField(la,ln){ document.getElementById('f-loc').value=`${la.toFixed(5)}, ${ln.toFixed(5)}`; }
   function getGPS() {
-    if (!navigator.geolocation) { showToast("GPS সাপোর্ট নেই!"); return; }
-    navigator.geolocation.getCurrentPosition(p=>{
-      setLocField(p.coords.latitude, p.coords.longitude);
-      if(picker&&pickerM){ pickerM.setLatLng([p.coords.latitude,p.coords.longitude]); picker.setView([p.coords.latitude,p.coords.longitude],15); }
-      showToast(t("toastGPSUpd"));
-    }, e=>showToast("GPS Error: "+e.message),{enableHighAccuracy:true,timeout:10000});
+    getHighAccuracyGPS((la, ln, acc) => {
+      setLocField(la, ln);
+      if (picker && pickerM) {
+        pickerM.setLatLng([la, ln]);
+        picker.setView([la, ln], 17);
+      }
+      const accM = Math.round(acc);
+      showToast(`📍 লোকেশন সেট হয়েছে (নিখুঁততা: ${accM}m)`);
+    }, (msg) => {
+      showToast(msg);
+    }, 'gps-status');
   }
+
+  // ─── High-accuracy GPS with retry + accuracy filter ───────────
+  function getHighAccuracyGPS(onSuccess, onFail, statusId) {
+    if (!navigator.geolocation) { onFail("❌ এই ব্রাউজারে GPS সাপোর্ট নেই!"); return; }
+
+    const statusEl = statusId ? document.getElementById(statusId) : null;
+    const setStat = (msg, color) => {
+      if (statusEl) { statusEl.textContent = msg; statusEl.style.color = color || '#888'; statusEl.style.display = 'block'; }
+    };
+
+    let bestPos = null;
+    let bestAcc = Infinity;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 3;
+    const MAX_ACC_METERS = 50;
+
+    setStat("📡 GPS সিগন্যাল খোঁজা হচ্ছে...", "#2b579a");
+
+    function tryOnce() {
+      attempts++;
+      const opts = {
+        enableHighAccuracy: true,
+        timeout: attempts === 1 ? 15000 : 20000,
+        maximumAge: 0
+      };
+
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const acc = pos.coords.accuracy || 999;
+          const la = pos.coords.latitude;
+          const ln = pos.coords.longitude;
+
+          if (acc < bestAcc) { bestAcc = acc; bestPos = pos; }
+
+          if (acc <= MAX_ACC_METERS) {
+            setStat(`✅ নিখুঁত লোকেশন (${Math.round(acc)}m)`, "#27ae60");
+            setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000);
+            onSuccess(la, ln, acc);
+          } else if (attempts < MAX_ATTEMPTS) {
+            setStat(`⏳ আরও নিখুঁত লোকেশন খোঁজা হচ্ছে... (${Math.round(acc)}m) — চেষ্টা ${attempts}/${MAX_ATTEMPTS}`, "#e67e22");
+            setTimeout(tryOnce, 800);
+          } else {
+            // best effort — use the most accurate we got
+            const fp = bestPos || pos;
+            const fa = bestPos ? bestAcc : acc;
+            setStat(`⚠️ সর্বোত্তম লোকেশন (${Math.round(fa)}m) — গ্রহণ করা হলো`, "#e67e22");
+            setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 4000);
+            onSuccess(fp.coords.latitude, fp.coords.longitude, fa);
+          }
+        },
+        err => {
+          if (attempts < MAX_ATTEMPTS) {
+            setStat(`⏳ GPS রিট্রাই... চেষ্টা ${attempts}/${MAX_ATTEMPTS}`, "#e67e22");
+            setTimeout(tryOnce, 1000);
+          } else {
+            setStat("", "#888");
+            let msg = "❌ GPS Error! ";
+            if (err.code === 1) msg = "❌ GPS অনুমতি দেওয়া হয়নি! ব্রাউজার সেটিংসে অনুমতি দিন।";
+            else if (err.code === 2) msg = "❌ লোকেশন পাওয়া যায়নি! খোলা আকাশের নিচে চেষ্টা করুন।";
+            else if (err.code === 3) msg = "❌ GPS টাইমআউট! আবার চেষ্টা করুন।";
+            onFail(msg);
+          }
+        },
+        opts
+      );
+    }
+
+    tryOnce();
+  }
+  // ─── Add-page inline bulk ─────────────────────────────────
+  function toggleAddBulk() {
+    const p = document.getElementById('add-bulk-panel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function generateRangeAdd() {
+    const base    = document.getElementById('add-range-base').value.trim();
+    const fromVal = parseInt(document.getElementById('add-range-from').value, 10);
+    const toVal   = parseInt(document.getElementById('add-range-to').value, 10);
+    const pad     = document.getElementById('add-range-pad').checked;
+    const excRaw  = document.getElementById('add-range-exclude').value.trim();
+
+    if (!base) { showToast("বেস নাম্বার লিখুন (যেমন 123/45/)!"); return; }
+    if (isNaN(fromVal) || isNaN(toVal)) { showToast("কত থেকে ও কত পর্যন্ত দিন!"); return; }
+    if (toVal < fromVal) { showToast("শেষ নাম্বার শুরুর চেয়ে ছোট হতে পারে না!"); return; }
+
+    const exclude = new Set();
+    if (excRaw) {
+      excRaw.split(/[,\s]+/).forEach(s => {
+        const n = parseInt(s.trim(), 10);
+        if (!isNaN(n)) exclude.add(n);
+      });
+    }
+
+    let prefix = base;
+    if (!prefix.endsWith('/')) prefix += '/';
+
+    const lines = [];
+    for (let i = fromVal; i <= toVal; i++) {
+      if (exclude.has(i)) continue;
+      const suffix = pad ? String(i).padStart(3, '0') : String(i);
+      lines.push(prefix + suffix);
+    }
+
+    const ta = document.getElementById('add-bulk-subs');
+    const existing = ta.value.trim();
+    ta.value = existing ? existing + '\n' + lines.join('\n') : lines.join('\n');
+    updateAddBulkPreview();
+    showToast(`✅ ${lines.length} টি নাম্বার জেনারেট হয়েছে`);
+  }
+
+  function parseAddBulkList() {
+    const raw = document.getElementById('add-bulk-subs').value;
+    const lines = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+    const items = [];
+    const seen = {};
+    for (const line of lines) {
+      let key = line;
+      if (/^[0-9/]+$/.test(line) && !line.includes('/')) {
+        const m = line.replace(/\D/g, '');
+        let f = '';
+        if (m.length > 0) f += m.substr(0, 3);
+        if (m.length > 3) f += '/' + m.substr(3, 2);
+        if (m.length > 5) f += '/' + m.substr(5, 3);
+        key = f || line;
+      }
+      const isDup = seen[key] || MEM.has(key);
+      seen[key] = true;
+      items.push({ key, isDup });
+    }
+    return items;
+  }
+
+  function updateAddBulkPreview() {
+    const items = parseAddBulkList();
+    document.getElementById('add-bulk-count').textContent = `${items.length} টি নাম্বার`;
+    const pv = document.getElementById('add-bulk-preview');
+    if (!items.length) { pv.style.display = 'none'; pv.innerHTML = ''; return; }
+    pv.style.display = 'block';
+    pv.innerHTML = items.map(it => `
+      <div class="bp-item">
+        <span class="bp-num">${it.key}</span>
+        <span class="${it.isDup ? 'bp-dup' : 'bp-new'}">${it.isDup ? '⚠️ আগে থেকে আছে' : '✨ নতুন'}</span>
+      </div>`).join('');
+  }
+
+  function getBulkGPSAdd() {
+    getHighAccuracyGPS((la, ln, acc) => {
+      document.getElementById('add-bulk-loc').value = `${la.toFixed(5)}, ${ln.toFixed(5)}`;
+      showToast(`📍 লোকেশন সেট (${Math.round(acc)}m)`);
+    }, (msg) => {
+      showToast(msg);
+    }, null);
+  }
+
+  async function bulkSaveAdd() {
+    if (myRole === 'Viewer') { showToast(t("toastViewerAdd")); return; }
+    const items = parseAddBulkList();
+    const loc = document.getElementById('add-bulk-loc').value.trim();
+    if (!items.length) { showToast("অন্তত একটি সাবস্ক্রিপশন নাম্বার লিখুন!"); return; }
+    if (!loc) { showToast(t("toastEmptyField")); return; }
+
+    const pw = document.getElementById('add-bulk-prog-wrap');
+    const pf = document.getElementById('add-bulk-prog-fill');
+    const pl = document.getElementById('add-bulk-prog-lbl');
+    pw.style.display = 'block';
+
+    const tot = items.length;
+    let done = 0, queued = 0, pushed = 0;
+    const online = navigator.onLine && !!GH_TOK;
+
+    for (const it of items) {
+      await iPut(SM, it.key, loc);
+      MEM.set(it.key, loc);
+      if (online) {
+        const ok = await pushOne(it.key, loc);
+        if (ok) pushed++; else { await enqueue(it.key, loc); queued++; }
+      } else {
+        await enqueue(it.key, loc);
+        queued++;
+      }
+      done++;
+      const pct = Math.round(done / tot * 100);
+      pf.style.width = pct + '%';
+      pl.textContent = `${pct}% (${done}/${tot})`;
+    }
+
+    const mk = {};
+    items.forEach(it => mk[it.key] = 1);
+    await iBulk(SL, mk, null);
+
+    pw.style.display = 'none';
+    refreshQBadge();
+    updateStats();
+
+    document.getElementById('add-bulk-subs').value = '';
+    document.getElementById('add-bulk-loc').value = '';
+    updateAddBulkPreview();
+
+    const msg = online
+      ? `✅ ${tot} টি সেভ হয়েছে (${pushed} আপলোড${queued ? ', ' + queued + ' কিউ' : ''})`
+      : `✅ ${tot} টি লোকালি সেভ হয়েছে (${queued} কিউ)`;
+    showToast(msg);
+  }
+
   async function saveEntry() {
     if (myRole==='Viewer') { showToast(t("toastViewerAdd")); return; }
     const sub = document.getElementById('f-sub').value.trim();
@@ -1075,6 +1406,142 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     document.getElementById('f-loc').value='';
     go('s-search','n-search');
     updateStats();
+  }
+
+  // ─── Bulk Add (একই লোকেশনে একাধিক সাবস্ক্রিপশন) ──────────────
+  function generateRange() {
+    const base    = document.getElementById('range-base').value.trim();
+    const fromVal = parseInt(document.getElementById('range-from').value, 10);
+    const toVal   = parseInt(document.getElementById('range-to').value, 10);
+    const pad     = document.getElementById('range-pad').checked;
+    const excRaw  = document.getElementById('range-exclude').value.trim();
+
+    if (!base) { showToast("বেস নাম্বার লিখুন (যেমন 123/45/)!"); return; }
+    if (isNaN(fromVal) || isNaN(toVal)) { showToast("কত থেকে ও কত পর্যন্ত দিন!"); return; }
+    if (toVal < fromVal) { showToast("শেষ নাম্বার শুরুর চেয়ে ছোট হতে পারে না!"); return; }
+
+    // ব্যতিক্রম নাম্বার সেট বানাও
+    const exclude = new Set();
+    if (excRaw) {
+      excRaw.split(/[,\s]+/).forEach(s => {
+        const n = parseInt(s.trim(), 10);
+        if (!isNaN(n)) exclude.add(n);
+      });
+    }
+
+    // বেস এর শেষে / না থাকলে যোগ করো
+    let prefix = base;
+    if (!prefix.endsWith('/')) prefix += '/';
+
+    const lines = [];
+    for (let i = fromVal; i <= toVal; i++) {
+      if (exclude.has(i)) continue;
+      const suffix = pad ? String(i).padStart(3, '0') : String(i);
+      lines.push(prefix + suffix);
+    }
+
+    const ta = document.getElementById('bulk-subs');
+    const existing = ta.value.trim();
+    ta.value = existing ? existing + '\n' + lines.join('\n') : lines.join('\n');
+    updateBulkPreview();
+    showToast(`✅ ${lines.length} টি নাম্বার জেনারেট হয়েছে`);
+  }
+
+  function parseBulkList() {
+    const raw = document.getElementById('bulk-subs').value;
+    const lines = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+    const items = [];
+    const seen = {};
+    for (const line of lines) {
+      // সাবস্ক্রিপশন ফরম্যাট (xxx/xx/xxx) হলে সেটাই, নাহলে যেকোনো নাম্বার/টেক্সট
+      let key = line;
+      // সাবস্ক্রিপশন ফরম্যাট অটো-ফরম্যাট চেষ্টা (শুধু ডিজিট ও / থাকলে)
+      if (/^[0-9/]+$/.test(line) && !line.includes('/')) {
+        const m = line.replace(/\D/g,'');
+        let f = '';
+        if(m.length>0)f+=m.substr(0,3);
+        if(m.length>3)f+='/'+m.substr(3,2);
+        if(m.length>5)f+='/'+m.substr(5,3);
+        key = f || line;
+      }
+      const isDup = seen[key] || MEM.has(key);
+      seen[key] = true;
+      items.push({ key, isDup });
+    }
+    return items;
+  }
+
+  function updateBulkPreview() {
+    const items = parseBulkList();
+    document.getElementById('bulk-count').textContent = `${items.length} টি নাম্বার`;
+    const pv = document.getElementById('bulk-preview');
+    if (!items.length) { pv.style.display = 'none'; pv.innerHTML = ''; return; }
+    pv.style.display = 'block';
+    pv.innerHTML = items.map(it => `
+      <div class="bp-item">
+        <span class="bp-num">${it.key}</span>
+        <span class="${it.isDup ? 'bp-dup' : 'bp-new'}">${it.isDup ? '⚠️ আগে থেকে আছে' : '✨ নতুন'}</span>
+      </div>`).join('');
+  }
+
+  function getBulkGPS() {
+    if (!navigator.geolocation) { showToast("GPS সাপোর্ট নেই!"); return; }
+    navigator.geolocation.getCurrentPosition(p => {
+      document.getElementById('bulk-loc').value = `${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`;
+      showToast(t("toastGPSUpd"));
+    }, e => showToast("GPS Error: " + e.message), { enableHighAccuracy: true, timeout: 10000 });
+  }
+
+  async function bulkSave() {
+    if (myRole === 'Viewer') { showToast(t("toastViewerAdd")); return; }
+    const items = parseBulkList();
+    const loc = document.getElementById('bulk-loc').value.trim();
+    if (!items.length) { showToast("অন্তত একটি সাবস্ক্রিপশন নাম্বার লিখুন!"); return; }
+    if (!loc) { showToast(t("toastEmptyField")); return; }
+
+    const pw = document.getElementById('bulk-prog-wrap');
+    const pf = document.getElementById('bulk-prog-fill');
+    const pl = document.getElementById('bulk-prog-lbl');
+    pw.style.display = 'block';
+
+    const tot = items.length;
+    let done = 0, queued = 0, pushed = 0;
+    const online = navigator.onLine && !!GH_TOK;
+
+    for (const it of items) {
+      await iPut(SM, it.key, loc);
+      MEM.set(it.key, loc);
+      if (online) {
+        const ok = await pushOne(it.key, loc);
+        if (ok) pushed++; else { await enqueue(it.key, loc); queued++; }
+      } else {
+        await enqueue(it.key, loc);
+        queued++;
+      }
+      done++;
+      const pct = Math.round(done / tot * 100);
+      pf.style.width = pct + '%';
+      pl.textContent = `${pct}% (${done}/${tot})`;
+    }
+
+    // local import store এ চিহ্নিত করো
+    const mk = {};
+    items.forEach(it => mk[it.key] = 1);
+    await iBulk(SL, mk, null);
+
+    pw.style.display = 'none';
+    refreshQBadge();
+    updateStats();
+    loadTable();
+
+    document.getElementById('bulk-subs').value = '';
+    document.getElementById('bulk-loc').value = '';
+    updateBulkPreview();
+
+    const msg = online
+      ? `✅ ${tot} টি সেভ হয়েছে (${pushed} আপলোড${queued ? ', ' + queued + ' কিউ' : ''})`
+      : `✅ ${tot} টি লোকালি সেভ হয়েছে (${queued} কিউ)`;
+    showToast(msg);
   }
 
   // ─── Import / Export ──────────────────────────────────────
@@ -1198,10 +1665,37 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     const el=document.createElement('textarea'); el.value=t; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
     showToast(t("toastCopied"));
   }
-  function shareLoc() {
-    const id=document.getElementById('res-id').textContent;
-    const lnk="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(curLoc);
-    window.open(`https://wa.me/?text=${encodeURIComponent('ID: '+id+' | '+lnk)}`,'_blank');
+  async function shareLoc() {
+    const id = document.getElementById('res-id').textContent;
+    const lnk = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(curLoc);
+    const text = `সাবস্ক্রিপশন নং: ${id}\nলোকেশন: ${curLoc}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `সাবস্ক্রিপশন ${id}`,
+          text,
+          url: lnk
+        });
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+      }
+    }
+
+    const shareText = `${text}\nম্যাপ: ${lnk}`;
+    try {
+      await navigator.clipboard.writeText(shareText);
+      showToast("📋 শেয়ারের তথ্য কপি হয়েছে — যেকোনো সোশ্যাল মিডিয়ায় পেস্ট করুন");
+    } catch (err) {
+      const el = document.createElement('textarea');
+      el.value = shareText;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      showToast("📋 শেয়ারের তথ্য কপি হয়েছে — যেকোনো সোশ্যাল মিডিয়ায় পেস্ট করুন");
+    }
   }
 
   // ─── Nearby Map ───────────────────────────────────────────
@@ -1335,25 +1829,19 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     const cEl = document.getElementById('nearby-count');
     cEl.innerHTML = t('nearbyLoading');
 
-    if (!navigator.geolocation) {
-      cEl.innerHTML = '❌ এই ব্রাউজারে GPS সাপোর্ট নেই';
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        myLat = pos.coords.latitude;
-        myLng = pos.coords.longitude;
+    getHighAccuracyGPS(
+      (la, ln, acc) => {
+        myLat = la;
+        myLng = ln;
         initNearbyMap(myLat, myLng);
         const radius = parseInt(document.getElementById('radius-sel').value);
         loadNearbyPins(myLat, myLng, radius);
-        // ম্যাপ resize ঠিক করো
         setTimeout(() => nearbyMap && nearbyMap.invalidateSize(), 300);
       },
-      err => {
-        cEl.innerHTML = `❌ GPS Error: ${err.message}`;
+      (msg) => {
+        cEl.innerHTML = msg;
       },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
+      null
     );
   }
 
