@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2b579a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="SubTracker">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Subscription Tracker Pro v4</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -49,7 +54,31 @@ textarea{resize:vertical;min-height:120px;font-family:'IBM Plex Mono',monospace;
 .ni{flex:1;text-align:center;padding:14px 0;cursor:pointer;font-weight:700;color:#999;font-size:13px}
 .ni.active{color:var(--pc);border-top:3px solid var(--pc)}
 /* toast */
-.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:9px 20px;border-radius:20px;font-size:13px;display:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.35);white-space:nowrap}
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:9px 20px;border-radius:20px;font-size:13px;display:none;z-index:99999;box-shadow:0 4px 12px rgba(0,0,0,.35);white-space:nowrap}
+.share-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);display:none;z-index:99998;justify-content:center;align-items:flex-end;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0}to{opacity:1}}
+.share-sheet{background:var(--bg);border-radius:18px 18px 0 0;width:100%;max-width:440px;padding:18px 16px 24px;box-shadow:0 -4px 24px rgba(0,0,0,.2);animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.share-title{font-size:15px;font-weight:800;text-align:center;margin-bottom:14px;color:var(--pc)}
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:8px}
+.share-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;text-decoration:none;color:inherit}
+.share-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 3px 8px rgba(0,0,0,.15);transition:transform .15s ease}
+.share-item:hover .share-icon{transform:scale(1.1)}
+.share-label{font-size:11px;font-weight:600;text-align:center;color:var(--pc)}
+.share-cancel{margin-top:14px;width:100%;padding:12px;border:1px solid var(--br);border-radius:12px;background:transparent;font-size:14px;font-weight:700;color:var(--pc);cursor:pointer}
+/* ── PWA Install Popup ── */
+.install-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:none;z-index:99997;justify-content:center;align-items:center;animation:fadeUp .25s ease}
+.install-card{background:var(--card);border-radius:20px;width:90%;max-width:380px;padding:28px 22px 22px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.25);animation:slideUp .3s ease}
+.install-icon{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#2b579a,#1a3d6f);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px;box-shadow:0 4px 16px rgba(43,87,154,.4)}
+.install-title{font-size:19px;font-weight:800;color:var(--pc);margin-bottom:6px}
+.install-desc{font-size:13px;color:var(--tx);line-height:1.5;margin-bottom:20px}
+.install-btn{width:100%;padding:13px;background:var(--pc);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;transition:transform .15s}
+.install-btn:active{transform:scale(.97)}
+.install-later{width:100%;padding:11px;background:transparent;color:#999;border:none;font-size:13px;font-weight:600;cursor:pointer}
+.install-badge{display:none;align-items:center;gap:6px;background:rgba(39,174,96,.15);color:#27ae60;border:1px solid rgba(39,174,96,.3);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.install-badge.show{display:inline-flex}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(39,174,96,.4)}50%{box-shadow:0 0 0 6px rgba(39,174,96,0)}}
+.install-badge.pulse{animation:pulse 2s infinite}
 /* cloud bar */
 .cloud-bar{background:#e8f4fd;border:1px solid #bce0fd;color:#1d6fa5;padding:11px 13px;border-radius:8px;font-size:13px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 [data-theme=dark] .cloud-bar{background:#1a2635;border-color:#243b53;color:#64b5f6}
@@ -135,9 +164,6 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 .bulk-preview .bp-dup{font-size:10px;color:#e67e22;font-weight:700}
 .bulk-preview .bp-new{font-size:10px;color:#27ae60;font-weight:700}
 </style>
-  <meta property="og:image" content="https://bolt.new/static/og_default.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
 </head>
 <body>
 
@@ -152,6 +178,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 <header>
   <h1 id="app-title">Subscription Tracker Pro</h1>
   <div class="hc">
+    <span id="install-badge" class="install-badge" onclick="showInstallPopup()">📲 ইনস্টল</span>
     <button class="ib" onclick="toggleTheme()">🌙</button>
   </div>
 </header>
@@ -228,8 +255,8 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
           <p class="bulk-hint">রেঞ্জ দিয়ে অটো-জেনারেট করুন অথবা প্রতি লাইনে একটি করে নাম্বার লিখুন।</p>
 
           <div style="background:rgba(43,87,154,.06);border:1px solid rgba(43,87,154,.25);border-radius:8px;padding:12px;margin-bottom:12px">
-            <label style="font-size:12px;font-weight:700;color:var(--pc);display:block;margin-bottom:4px">বেস সাবস্ক্রিপশন নাম্বার (শেষ ৩ ডিজিট বাদে):</label>
-            <input type="text" id="add-range-base" class="mono" placeholder="123/45/" inputmode="decimal" style="margin-bottom:10px">
+            <label style="font-size:12px;font-weight:700;color:var(--pc);display:block;margin-bottom:4px">বেস সাবস্ক্রিপশন নাম্বার (৫টি সংখ্যা আবশ্যক):</label>
+            <input type="text" id="add-range-base" class="mono" placeholder="123/45" inputmode="numeric" maxlength="6" oninput="formatBaseSubscription(this)" style="margin-bottom:10px">
             <div style="display:flex;gap:8px;margin-bottom:10px">
               <div style="flex:1">
                 <label style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">কত থেকে:</label>
@@ -240,8 +267,8 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
                 <input type="number" id="add-range-to" placeholder="10" inputmode="numeric">
               </div>
             </div>
-            <label style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">ব্যতিক্রম নাম্বার (কমা দিয়ে, ঐচ্ছিক):</label>
-            <input type="text" id="add-range-exclude" class="mono" placeholder="3, 7, 12" inputmode="numeric" style="margin-bottom:10px">
+            <label style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">ব্যতিক্রম নাম্বার (ফুলস্টপ দিয়ে, ঐচ্ছিক):</label>
+            <input type="text" id="add-range-exclude" class="mono" placeholder="032.037.041" inputmode="numeric" style="margin-bottom:10px">
             <div style="display:flex;gap:8px;align-items:center">
               <label style="font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;cursor:pointer">
                 <input type="checkbox" id="add-range-pad" checked style="width:auto"> শূন্য প্যাডিং (001)
@@ -377,8 +404,8 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 
         <!-- ── রেঞ্জ জেনারেটর ── -->
         <div style="background:rgba(43,87,154,.06);border:1px solid rgba(43,87,154,.25);border-radius:8px;padding:12px;margin-bottom:12px">
-          <label id="lbl-range-base" style="font-size:12px;font-weight:700;color:var(--pc);display:block;margin-bottom:4px">বেস সাবস্ক্রিপশন নাম্বার (শেষ ৩ ডিজিট বাদে):</label>
-          <input type="text" id="range-base" class="mono" placeholder="123/45/" inputmode="decimal" style="margin-bottom:10px">
+          <label id="lbl-range-base" style="font-size:12px;font-weight:700;color:var(--pc);display:block;margin-bottom:4px">বেস সাবস্ক্রিপশন নাম্বার (৫টি সংখ্যা আবশ্যক):</label>
+          <input type="text" id="range-base" class="mono" placeholder="123/45" inputmode="numeric" maxlength="6" oninput="formatBaseSubscription(this)" style="margin-bottom:10px">
           <div style="display:flex;gap:8px;margin-bottom:10px">
             <div style="flex:1">
               <label id="lbl-range-from" style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">কত থেকে:</label>
@@ -389,8 +416,8 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
               <input type="number" id="range-to" placeholder="10" inputmode="numeric">
             </div>
           </div>
-          <label id="lbl-range-exclude" style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">ব্যতিক্রম নাম্বার (কমা দিয়ে, ঐচ্ছিক):</label>
-          <input type="text" id="range-exclude" class="mono" placeholder="3, 7, 12" inputmode="numeric" style="margin-bottom:10px">
+          <label id="lbl-range-exclude" style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">ব্যতিক্রম নাম্বার (ফুলস্টপ দিয়ে, ঐচ্ছিক):</label>
+          <input type="text" id="range-exclude" class="mono" placeholder="032.037.041" inputmode="numeric" style="margin-bottom:10px">
           <div style="display:flex;gap:8px;align-items:center">
             <label style="font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;cursor:pointer">
               <input type="checkbox" id="range-pad" checked style="width:auto"> শূন্য প্যাডিং (001)
@@ -463,6 +490,24 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   <div id="n-set"    class="ni"        onclick="navSettings()">⚙️ সেটিংস</div>
 </div>
 <div id="toast" class="toast"></div>
+
+<div id="install-overlay" class="install-overlay">
+  <div class="install-card">
+    <div class="install-icon">📱</div>
+    <div class="install-title">অ্যাপ ইনস্টল করুন</div>
+    <div class="install-desc">আপনার হোম স্ক্রিনে অ্যাপ হিসেবে ইনস্টল করে রাখুন — যেকোনো ব্রাউজার থেকে এক ক্লিকে খুলবে, ফুল স্ক্রিনে চলবে, অফলাইনেও কাজ করবে।</div>
+    <button class="install-btn" id="install-now-btn">📲 এখনই ইনস্টল করুন</button>
+    <button class="install-later" id="install-later-btn">পরে ইনস্টল করব</button>
+  </div>
+</div>
+
+<div id="share-overlay" class="share-overlay" onclick="closeShareSheet(event)">
+  <div class="share-sheet" onclick="event.stopPropagation()">
+    <div class="share-title">🔗 শেয়ার করুন</div>
+    <div class="share-grid" id="share-grid"></div>
+    <button class="share-cancel" onclick="closeShareSheet()">বন্ধ করুন</button>
+  </div>
+</div>
 
 <script>
 /* ═══════════════════════════════════════════════════════════
@@ -1251,27 +1296,36 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     p.style.display = p.style.display === 'none' ? 'block' : 'none';
   }
 
+  function formatBaseSubscription(input) {
+    const digits = input.value.replace(/\D/g, '').slice(0, 5);
+    input.value = digits.length > 3 ? `${digits.slice(0, 3)}/${digits.slice(3)}` : digits;
+  }
+
+  function getBaseSubscriptionDigits(value) {
+    return value.replace(/\D/g, '').slice(0, 5);
+  }
+
   function generateRangeAdd() {
     const base    = document.getElementById('add-range-base').value.trim();
+    const baseDigits = getBaseSubscriptionDigits(base);
     const fromVal = parseInt(document.getElementById('add-range-from').value, 10);
     const toVal   = parseInt(document.getElementById('add-range-to').value, 10);
     const pad     = document.getElementById('add-range-pad').checked;
     const excRaw  = document.getElementById('add-range-exclude').value.trim();
 
-    if (!base) { showToast("বেস নাম্বার লিখুন (যেমন 123/45/)!"); return; }
+    if (baseDigits.length !== 5) { showToast("বেস সাবস্ক্রিপশন নাম্বারে ৫টি সংখ্যা দিন (যেমন 123/45)!"); return; }
     if (isNaN(fromVal) || isNaN(toVal)) { showToast("কত থেকে ও কত পর্যন্ত দিন!"); return; }
     if (toVal < fromVal) { showToast("শেষ নাম্বার শুরুর চেয়ে ছোট হতে পারে না!"); return; }
 
     const exclude = new Set();
     if (excRaw) {
-      excRaw.split(/[,\s]+/).forEach(s => {
+      excRaw.split(/[.\s,]+/).forEach(s => {
         const n = parseInt(s.trim(), 10);
         if (!isNaN(n)) exclude.add(n);
       });
     }
 
-    let prefix = base;
-    if (!prefix.endsWith('/')) prefix += '/';
+    const prefix = baseDigits + '/';
 
     const lines = [];
     for (let i = fromVal; i <= toVal; i++) {
@@ -1281,8 +1335,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     }
 
     const ta = document.getElementById('add-bulk-subs');
-    const existing = ta.value.trim();
-    ta.value = existing ? existing + '\n' + lines.join('\n') : lines.join('\n');
+    ta.value = lines.join('\n');
     updateAddBulkPreview();
     showToast(`✅ ${lines.length} টি নাম্বার জেনারেট হয়েছে`);
   }
@@ -1411,27 +1464,27 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   // ─── Bulk Add (একই লোকেশনে একাধিক সাবস্ক্রিপশন) ──────────────
   function generateRange() {
     const base    = document.getElementById('range-base').value.trim();
+    const baseDigits = getBaseSubscriptionDigits(base);
     const fromVal = parseInt(document.getElementById('range-from').value, 10);
     const toVal   = parseInt(document.getElementById('range-to').value, 10);
     const pad     = document.getElementById('range-pad').checked;
     const excRaw  = document.getElementById('range-exclude').value.trim();
 
-    if (!base) { showToast("বেস নাম্বার লিখুন (যেমন 123/45/)!"); return; }
+    if (baseDigits.length !== 5) { showToast("বেস সাবস্ক্রিপশন নাম্বারে ৫টি সংখ্যা দিন (যেমন 123/45)!"); return; }
     if (isNaN(fromVal) || isNaN(toVal)) { showToast("কত থেকে ও কত পর্যন্ত দিন!"); return; }
     if (toVal < fromVal) { showToast("শেষ নাম্বার শুরুর চেয়ে ছোট হতে পারে না!"); return; }
 
     // ব্যতিক্রম নাম্বার সেট বানাও
     const exclude = new Set();
     if (excRaw) {
-      excRaw.split(/[,\s]+/).forEach(s => {
+      excRaw.split(/[.\s,]+/).forEach(s => {
         const n = parseInt(s.trim(), 10);
         if (!isNaN(n)) exclude.add(n);
       });
     }
 
     // বেস এর শেষে / না থাকলে যোগ করো
-    let prefix = base;
-    if (!prefix.endsWith('/')) prefix += '/';
+    const prefix = baseDigits + '/';
 
     const lines = [];
     for (let i = fromVal; i <= toVal; i++) {
@@ -1441,8 +1494,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     }
 
     const ta = document.getElementById('bulk-subs');
-    const existing = ta.value.trim();
-    ta.value = existing ? existing + '\n' + lines.join('\n') : lines.join('\n');
+    ta.value = lines.join('\n');
     updateBulkPreview();
     showToast(`✅ ${lines.length} টি নাম্বার জেনারেট হয়েছে`);
   }
@@ -1668,34 +1720,48 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   async function shareLoc() {
     const id = document.getElementById('res-id').textContent;
     const lnk = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(curLoc);
-    const text = `সাবস্ক্রিপশন নং: ${id}\nলোকেশন: ${curLoc}`;
+    const text = `সাবস্ক্রিপশন নং: ${id}\nলোকেশন: ${curLoc}\nম্যাপ: ${lnk}`;
+    const encText = encodeURIComponent(text);
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `সাবস্ক্রিপশন ${id}`,
-          text,
-          url: lnk
-        });
-        return;
-      } catch (err) {
-        if (err.name === 'AbortError') return;
+    const platforms = [
+      { name: 'WhatsApp',  icon: '💬', color: '#25D366', url: `https://wa.me/?text=${encText}` },
+      { name: 'Facebook',  icon: '📘', color: '#1877F2', url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(lnk)}&quote=${encText}` },
+      { name: 'Messenger', icon: '💌', color: '#0084FF', url: `https://www.facebook.com/dialog/send?app_id=291735018317885&link=${encodeURIComponent(lnk)}&redirect_uri=${encodeURIComponent(lnk)}` },
+      { name: 'Telegram',  icon: '✈️', color: '#0088CC', url: `https://t.me/share/url?url=${encodeURIComponent(lnk)}&text=${encText}` },
+      { name: 'Twitter',   icon: '🐦', color: '#1DA1F2', url: `https://twitter.com/intent/tweet?text=${encText}` },
+      { name: 'SMS',       icon: '📱', color: '#34C759', url: `sms:?body=${encText}` },
+      { name: 'Email',     icon: '📧', color: '#FF6B35', url: `mailto:?subject=${encodeURIComponent('সাবস্ক্রিপশন নং: ' + id)}&body=${encText}` },
+      { name: 'Copy',      icon: '📋', color: '#6c757d', url: null }
+    ];
+
+    const grid = document.getElementById('share-grid');
+    grid.innerHTML = '';
+    for (const p of platforms) {
+      const a = document.createElement('a');
+      a.className = 'share-item';
+      a.innerHTML = `<div class="share-icon" style="background:${p.color}">${p.icon}</div><div class="share-label">${p.name}</div>`;
+      if (p.url) {
+        a.href = p.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+      } else {
+        a.onclick = async (e) => {
+          e.preventDefault();
+          try { await navigator.clipboard.writeText(text); }
+          catch { const el=document.createElement('textarea'); el.value=text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); }
+          showToast('📋 কপি হয়েছে');
+          closeShareSheet();
+        };
       }
+      grid.appendChild(a);
     }
 
-    const shareText = `${text}\nম্যাপ: ${lnk}`;
-    try {
-      await navigator.clipboard.writeText(shareText);
-      showToast("📋 শেয়ারের তথ্য কপি হয়েছে — যেকোনো সোশ্যাল মিডিয়ায় পেস্ট করুন");
-    } catch (err) {
-      const el = document.createElement('textarea');
-      el.value = shareText;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-      showToast("📋 শেয়ারের তথ্য কপি হয়েছে — যেকোনো সোশ্যাল মিডিয়ায় পেস্ট করুন");
-    }
+    document.getElementById('share-overlay').style.display = 'flex';
+  }
+
+  function closeShareSheet(e) {
+    if (e && e.target && e.target.closest('.share-sheet')) return;
+    document.getElementById('share-overlay').style.display = 'none';
   }
 
   // ─── Nearby Map ───────────────────────────────────────────
@@ -2095,6 +2161,124 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 
   function setTx(id, text)          { const e=document.getElementById(id); if(e) e.textContent=text; }
   function setAttr(id, attr, val)   { const e=document.getElementById(id); if(e) e.setAttribute(attr,val); }
+
+  // ─── PWA Install System ───────────────────────────────────
+  let deferredPrompt = null;
+
+  // Runtime manifest (single-file PWA — no separate manifest.json needed)
+  (function generateManifest() {
+    const icon = 'data:image/svg+xml,' + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512">' +
+      '<rect width="512" height="512" rx="96" fill="#2b579a"/>' +
+      '<text x="256" y="340" font-size="240" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="bold">S</text>' +
+      '</svg>'
+    );
+    const manifest = {
+      name: "Subscription Tracker Pro",
+      short_name: "SubTracker",
+      description: "Subscription location tracker",
+      start_url: ".",
+      display: "standalone",
+      background_color: "#f4f6f9",
+      theme_color: "#2b579a",
+      orientation: "portrait",
+      icons: [
+        { src: icon, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+      ]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = URL.createObjectURL(blob);
+    document.head.appendChild(link);
+
+    // Apple touch icon
+    const appleIcon = document.createElement('link');
+    appleIcon.rel = 'apple-touch-icon';
+    appleIcon.href = icon;
+    document.head.appendChild(appleIcon);
+
+    // Favicon
+    const fav = document.createElement('link');
+    fav.rel = 'icon';
+    fav.href = icon;
+    document.head.appendChild(fav);
+  })();
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallBadge();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    hideInstallBadge();
+    closeInstallPopup();
+    lss('installDismissed', 'installed');
+    showToast('✅ অ্যাপ ইনস্টল হয়েছে!');
+  });
+
+  function showInstallBadge() {
+    const badge = document.getElementById('install-badge');
+    if (badge) { badge.classList.add('show', 'pulse'); }
+  }
+  function hideInstallBadge() {
+    const badge = document.getElementById('install-badge');
+    if (badge) { badge.classList.remove('show', 'pulse'); }
+  }
+
+  function showInstallPopup() {
+    document.getElementById('install-overlay').style.display = 'flex';
+  }
+  function closeInstallPopup() {
+    document.getElementById('install-overlay').style.display = 'none';
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('install-now-btn').addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if (outcome === 'accepted') {
+          hideInstallBadge();
+          closeInstallPopup();
+          lss('installDismissed', 'installed');
+        } else {
+          closeInstallPopup();
+          lss('installDismissed', 'dismissed-' + Date.now());
+        }
+      } else {
+        // Browser doesn't support beforeinstallprompt (e.g. iOS Safari)
+        closeInstallPopup();
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+          showToast('📱 Safari এর Share বাটন চাপুন → "Add to Home Screen" নির্বাচন করুন');
+        } else {
+          showToast('📱 ব্রাউজার মেনু ⋮ থেকে "Install app" বা "Add to Home screen" নির্বাচন করুন');
+        }
+      }
+    });
+
+    document.getElementById('install-later-btn').addEventListener('click', () => {
+      closeInstallPopup();
+      lss('installDismissed', 'dismissed-' + Date.now());
+    });
+
+    // Show popup on first visit (if not previously dismissed)
+    const status = ls('installDismissed');
+    if (!status) {
+      setTimeout(() => {
+        if (!deferredPrompt) {
+          // No beforeinstallprompt yet — show popup after 2.5s
+          showInstallPopup();
+        } else {
+          showInstallPopup();
+        }
+      }, 2500);
+    }
+  });
 </script>
 </body>
 </html>
