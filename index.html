@@ -504,6 +504,8 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 <div id="share-overlay" class="share-overlay" onclick="closeShareSheet(event)">
   <div class="share-sheet" onclick="event.stopPropagation()">
     <div class="share-title">🔗 শেয়ার করুন</div>
+    <button id="native-share-btn" class="btn" style="margin-bottom:10px;background:#2b579a;font-size:14px" onclick="nativeShare()">📤 সব অ্যাপে শেয়ার করুন</button>
+    <div style="text-align:center;font-size:11px;color:#999;margin:6px 0 10px">— অথবা নির্দিষ্ট অ্যাপ বাছুন —</div>
     <div class="share-grid" id="share-grid"></div>
     <button class="share-cancel" onclick="closeShareSheet()">বন্ধ করুন</button>
   </div>
@@ -708,23 +710,40 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     } catch(e){}
     return null;
   }
+  let _metaCache = null;
   async function pushOne(key, val) {
-    if (!GH_TOK) return false;
+    return pushBatch([{key, val}]);
+  }
+  async function pushBatch(items) {
+    if (!GH_TOK || !items.length) return 0;
     try {
-      const meta  = await ghMeta();
-      const tot   = (meta.totalRecords||0)+1;
-      const ci    = Math.floor((tot-1)/CHUNK);
-      const chunk = await ghChunk(ci)||{};
-      chunk[key]  = val;
-      const ok    = await ghPush(`chunks/chunk_${ci}.json`, JSON.stringify(chunk), `Add ${key}`);
-      if (!ok) return false;
+      const meta = _metaCache || await ghMeta();
+      _metaCache = null;
+      let tot = meta.totalRecords || 0;
+      const maxCI = meta.totalChunks || 0;
+      const groups = {};
+      for (const it of items) {
+        const ci = Math.floor(tot / CHUNK);
+        if (!groups[ci]) groups[ci] = {};
+        groups[ci][it.key] = it.val;
+        tot++;
+      }
+      let pushedChunks = 0;
+      let pushedItems = 0;
+      for (const ci of Object.keys(groups).sort((a,b)=>a-b)) {
+        const chunk = await ghChunk(Number(ci)) || {};
+        Object.assign(chunk, groups[ci]);
+        const ok = await ghPush(`chunks/chunk_${ci}.json`, JSON.stringify(chunk), `Add ${Object.keys(groups[ci]).length} records`);
+        if (ok) { pushedChunks++; pushedItems += Object.keys(groups[ci]).length; }
+      }
+      const finalCI = Math.floor((tot - 1) / CHUNK);
       await ghPush('meta.json', JSON.stringify({
-        totalRecords:tot,
-        totalChunks:Math.max(meta.totalChunks||1, ci+1),
-        lastUpdated:new Date().toISOString()
+        totalRecords: tot,
+        totalChunks: Math.max(maxCI, finalCI + 1),
+        lastUpdated: new Date().toISOString()
       }), 'Update meta');
-      return true;
-    } catch(e){ return false; }
+      return pushedItems;
+    } catch(e){ return 0; }
   }
   async function doSync() {
     const el = document.getElementById('cloud-lbl');
@@ -733,26 +752,35 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     try {
       const meta = await ghMeta();
       const tc   = meta.totalChunks||0;
+      const syncedChunks = parseInt(ls('syncedChunks')||'0', 10);
       let imp = 0;
       for (let i=0; i<tc; i++) {
         const ch = await ghChunk(i);
         if (ch) {
           await iBulk(SM, ch, null);
           Object.keys(ch).forEach(k=>MEM.set(k,ch[k]));
-          imp += Object.keys(ch).length;
+          if (i >= syncedChunks) imp += Object.keys(ch).length;
         }
         el.textContent = `⏳ ${i+1}/${tc} chunks…`;
       }
+      lss('syncedChunks', String(tc));
+      lss('lastSyncTime', new Date().toISOString());
       // flush queue
       const q = await getQueue();
-      for (const it of q) await pushOne(it.key, it.location);
-      await iClear(SQ);
+      if (q.length) {
+        const batch = q.map(it => ({key: it.key, val: it.location}));
+        await pushBatch(batch);
+        await iClear(SQ);
+      }
       refreshQBadge();
       // ✅ Device registry sync
       await syncUDB();
       loadUserPanel();
       updateStats();
-      el.textContent = `✅ ${imp.toLocaleString()} ${t("toastSyncDone")}`;
+      const newChunks = Math.max(0, tc - syncedChunks);
+      el.textContent = imp > 0
+        ? `✅ ${imp.toLocaleString()} টি নতুন রেকর্ড সিঙ্ক হয়েছে`
+        : `✅ সব ডাটা আপ-টু-ডেট (${tc} chunks)`;
       showToast(t("toastSyncDone"));
       refreshChunkInfo(meta);
     } catch(e) {
@@ -768,9 +796,15 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   }
   async function refreshChunkInfo(meta) {
     if (!meta) meta = await ghMeta();
-    document.getElementById('chunk-info').textContent = meta.totalChunks
-      ? `GitHub: ${meta.totalChunks} chunks | ${(meta.totalRecords||0).toLocaleString()} records | ${meta.lastUpdated ? new Date(meta.lastUpdated).toLocaleString() : ''}`
-      : 'GitHub: meta.json পাওয়া যায়নি';
+    const synced = parseInt(ls('syncedChunks')||'0', 10);
+    const lastTime = ls('lastSyncTime');
+    const el = document.getElementById('chunk-info');
+    if (meta.totalChunks) {
+      const cached = Math.min(synced, meta.totalChunks);
+      el.textContent = `GitHub: ${meta.totalChunks} chunks | ${(meta.totalRecords||0).toLocaleString()} records | ${meta.lastUpdated ? new Date(meta.lastUpdated).toLocaleString() : ''}${cached ? ` | ক্যাশ: ${cached}/${meta.totalChunks} chunks${lastTime ? ' (' + new Date(lastTime).toLocaleString() + ')' : ''}` : ''}`;
+    } else {
+      el.textContent = 'GitHub: meta.json পাওয়া যায়নি';
+    }
   }
 
   // ─── UserDB helpers ───────────────────────────────────────
@@ -853,7 +887,13 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       await openDB();
       document.getElementById('cloud-lbl').textContent = '⏳ Index building...';
       await buildIndex();
-      document.getElementById('cloud-lbl').textContent = t('cloudReady');
+      const synced = parseInt(ls('syncedChunks')||'0', 10);
+      const lastTime = ls('lastSyncTime');
+      if (synced > 0 && lastTime) {
+        document.getElementById('cloud-lbl').textContent = `📦 ক্যাশ লোডেড (${synced} chunks, ${new Date(lastTime).toLocaleString()})`;
+      } else {
+        document.getElementById('cloud-lbl').textContent = t('cloudReady');
+      }
     } catch(e){ console.error(e); }
     initDevice();
     checkBlock();
@@ -869,8 +909,12 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     window.addEventListener('online', async ()=>{
       showToast(t('toastNetwork'));
       const q = await getQueue();
-      for (const it of q) await pushOne(it.key, it.location);
-      await iClear(SQ); refreshQBadge();
+      if (q.length) {
+        const batch = q.map(it => ({key: it.key, val: it.location}));
+        await pushBatch(batch);
+        await iClear(SQ);
+      }
+      refreshQBadge();
     });
     setInterval(touchActive, 30000);
   };
@@ -1403,17 +1447,21 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     for (const it of items) {
       await iPut(SM, it.key, loc);
       MEM.set(it.key, loc);
-      if (online) {
-        const ok = await pushOne(it.key, loc);
-        if (ok) pushed++; else { await enqueue(it.key, loc); queued++; }
-      } else {
-        await enqueue(it.key, loc);
-        queued++;
-      }
       done++;
       const pct = Math.round(done / tot * 100);
       pf.style.width = pct + '%';
       pl.textContent = `${pct}% (${done}/${tot})`;
+    }
+
+    if (online) {
+      const batch = items.map(it => ({key: it.key, val: loc}));
+      const okCount = await pushBatch(batch);
+      pushed = okCount;
+      if (pushed < items.length) {
+        for (const it of items) { await enqueue(it.key, loc); queued++; }
+      }
+    } else {
+      for (const it of items) { await enqueue(it.key, loc); queued++; }
     }
 
     const mk = {};
@@ -1563,17 +1611,21 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     for (const it of items) {
       await iPut(SM, it.key, loc);
       MEM.set(it.key, loc);
-      if (online) {
-        const ok = await pushOne(it.key, loc);
-        if (ok) pushed++; else { await enqueue(it.key, loc); queued++; }
-      } else {
-        await enqueue(it.key, loc);
-        queued++;
-      }
       done++;
       const pct = Math.round(done / tot * 100);
       pf.style.width = pct + '%';
       pl.textContent = `${pct}% (${done}/${tot})`;
+    }
+
+    if (online) {
+      const batch = items.map(it => ({key: it.key, val: loc}));
+      const okCount = await pushBatch(batch);
+      pushed = okCount;
+      if (pushed < items.length) {
+        for (const it of items) { await enqueue(it.key, loc); queued++; }
+      }
+    } else {
+      for (const it of items) { await enqueue(it.key, loc); queued++; }
     }
 
     // local import store এ চিহ্নিত করো
@@ -1724,14 +1776,15 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     const encText = encodeURIComponent(text);
 
     const platforms = [
-      { name: 'WhatsApp',  icon: '💬', color: '#25D366', url: `https://wa.me/?text=${encText}` },
-      { name: 'Facebook',  icon: '📘', color: '#1877F2', url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(lnk)}&quote=${encText}` },
-      { name: 'Messenger', icon: '💌', color: '#0084FF', url: `https://www.facebook.com/dialog/send?app_id=291735018317885&link=${encodeURIComponent(lnk)}&redirect_uri=${encodeURIComponent(lnk)}` },
-      { name: 'Telegram',  icon: '✈️', color: '#0088CC', url: `https://t.me/share/url?url=${encodeURIComponent(lnk)}&text=${encText}` },
-      { name: 'Twitter',   icon: '🐦', color: '#1DA1F2', url: `https://twitter.com/intent/tweet?text=${encText}` },
-      { name: 'SMS',       icon: '📱', color: '#34C759', url: `sms:?body=${encText}` },
-      { name: 'Email',     icon: '📧', color: '#FF6B35', url: `mailto:?subject=${encodeURIComponent('সাবস্ক্রিপশন নং: ' + id)}&body=${encText}` },
-      { name: 'Copy',      icon: '📋', color: '#6c757d', url: null }
+      { name: 'WhatsApp',    icon: '💬', color: '#25D366', url: `https://wa.me/?text=${encText}` },
+      { name: 'WA Business', icon: '💼', color: '#25D366', waBusiness: true },
+      { name: 'Facebook',    icon: '📘', color: '#1877F2', url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(lnk)}&quote=${encText}` },
+      { name: 'Messenger',   icon: '💌', color: '#0084FF', url: `https://www.facebook.com/dialog/send?app_id=291735018317885&link=${encodeURIComponent(lnk)}&redirect_uri=${encodeURIComponent(lnk)}` },
+      { name: 'Telegram',    icon: '✈️', color: '#0088CC', url: `https://t.me/share/url?url=${encodeURIComponent(lnk)}&text=${encText}` },
+      { name: 'Twitter',     icon: '🐦', color: '#1DA1F2', url: `https://twitter.com/intent/tweet?text=${encText}` },
+      { name: 'SMS',         icon: '📱', color: '#34C759', url: `sms:?body=${encText}` },
+      { name: 'Email',       icon: '📧', color: '#FF6B35', url: `mailto:?subject=${encodeURIComponent('সাবস্ক্রিপশন নং: ' + id)}&body=${encText}` },
+      { name: 'Copy',        icon: '📋', color: '#6c757d', copy: true }
     ];
 
     const grid = document.getElementById('share-grid');
@@ -1740,11 +1793,20 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       const a = document.createElement('a');
       a.className = 'share-item';
       a.innerHTML = `<div class="share-icon" style="background:${p.color}">${p.icon}</div><div class="share-label">${p.name}</div>`;
-      if (p.url) {
-        a.href = p.url;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-      } else {
+      if (p.waBusiness) {
+        a.onclick = async (e) => {
+          e.preventDefault();
+          const isAndroid = /Android/i.test(navigator.userAgent);
+          if (isAndroid) {
+            window.location.href = `intent://send/?text=${encText}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;end`;
+          } else if (navigator.share) {
+            try { await navigator.share({ title: 'Subscription Tracker', text: text }); } catch(err) {}
+            closeShareSheet();
+          } else {
+            window.open(`https://wa.me/?text=${encText}`, '_blank');
+          }
+        };
+      } else if (p.copy) {
         a.onclick = async (e) => {
           e.preventDefault();
           try { await navigator.clipboard.writeText(text); }
@@ -1752,6 +1814,10 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
           showToast('📋 কপি হয়েছে');
           closeShareSheet();
         };
+      } else if (p.url) {
+        a.href = p.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
       }
       grid.appendChild(a);
     }
@@ -1762,6 +1828,21 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   function closeShareSheet(e) {
     if (e && e.target && e.target.closest('.share-sheet')) return;
     document.getElementById('share-overlay').style.display = 'none';
+  }
+
+  async function nativeShare() {
+    const id = document.getElementById('res-id').textContent;
+    const lnk = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(curLoc);
+    const text = `সাবস্ক্রিপশন নং: ${id}\nলোকেশন: ${curLoc}\nম্যাপ: ${lnk}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Subscription Tracker', text: text, url: lnk });
+      } catch(err) { /* user cancelled */ }
+    } else {
+      try { await navigator.clipboard.writeText(text); showToast('📋 কপি হয়েছে'); }
+      catch { const el=document.createElement('textarea'); el.value=text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); showToast('📋 কপি হয়েছে'); }
+    }
+    closeShareSheet();
   }
 
   // ─── Nearby Map ───────────────────────────────────────────
