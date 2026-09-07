@@ -3,11 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#2b579a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="SubTracker">
-<meta name="mobile-web-app-capable" content="yes">
 <title>Subscription Tracker Pro v4</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -30,8 +25,7 @@ header h1{margin:0;font-size:17px}
 h2{margin:0 0 16px;font-size:17px;color:var(--pc);text-align:center}
 .ig{margin-bottom:13px;position:relative}
 .ig label{display:block;margin-bottom:4px;font-weight:700;font-size:13px}
-input[type=text],input[type=number],input[type=password],select,textarea{width:100%;padding:11px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font-size:15px}
-textarea{resize:vertical;min-height:120px;font-family:'IBM Plex Mono',monospace;line-height:1.6}
+input[type=text],input[type=number],input[type=password],select{width:100%;padding:11px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font-size:15px}
 .mono{font-family:'IBM Plex Mono',monospace!important;font-weight:700;letter-spacing:1px;color:var(--pc)!important}
 /* suggestions */
 .sugg{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--bd);border-radius:8px;box-shadow:0 4px 14px var(--sh);z-index:1000;max-height:200px;overflow-y:auto;display:none;margin-top:4px}
@@ -54,31 +48,7 @@ textarea{resize:vertical;min-height:120px;font-family:'IBM Plex Mono',monospace;
 .ni{flex:1;text-align:center;padding:14px 0;cursor:pointer;font-weight:700;color:#999;font-size:13px}
 .ni.active{color:var(--pc);border-top:3px solid var(--pc)}
 /* toast */
-.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:9px 20px;border-radius:20px;font-size:13px;display:none;z-index:99999;box-shadow:0 4px 12px rgba(0,0,0,.35);white-space:nowrap}
-.share-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);display:none;z-index:99998;justify-content:center;align-items:flex-end;animation:fadeUp .2s ease}
-@keyframes fadeUp{from{opacity:0}to{opacity:1}}
-.share-sheet{background:var(--bg);border-radius:18px 18px 0 0;width:100%;max-width:440px;padding:18px 16px 24px;box-shadow:0 -4px 24px rgba(0,0,0,.2);animation:slideUp .25s ease}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.share-title{font-size:15px;font-weight:800;text-align:center;margin-bottom:14px;color:var(--pc)}
-.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:8px}
-.share-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;text-decoration:none;color:inherit}
-.share-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 3px 8px rgba(0,0,0,.15);transition:transform .15s ease}
-.share-item:hover .share-icon{transform:scale(1.1)}
-.share-label{font-size:11px;font-weight:600;text-align:center;color:var(--pc)}
-.share-cancel{margin-top:14px;width:100%;padding:12px;border:1px solid var(--br);border-radius:12px;background:transparent;font-size:14px;font-weight:700;color:var(--pc);cursor:pointer}
-/* ── PWA Install Popup ── */
-.install-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:none;z-index:99997;justify-content:center;align-items:center;animation:fadeUp .25s ease}
-.install-card{background:var(--card);border-radius:20px;width:90%;max-width:380px;padding:28px 22px 22px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.25);animation:slideUp .3s ease}
-.install-icon{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#2b579a,#1a3d6f);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px;box-shadow:0 4px 16px rgba(43,87,154,.4)}
-.install-title{font-size:19px;font-weight:800;color:var(--pc);margin-bottom:6px}
-.install-desc{font-size:13px;color:var(--tx);line-height:1.5;margin-bottom:20px}
-.install-btn{width:100%;padding:13px;background:var(--pc);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;transition:transform .15s}
-.install-btn:active{transform:scale(.97)}
-.install-later{width:100%;padding:11px;background:transparent;color:#999;border:none;font-size:13px;font-weight:600;cursor:pointer}
-.install-badge{display:none;align-items:center;gap:6px;background:rgba(39,174,96,.15);color:#27ae60;border:1px solid rgba(39,174,96,.3);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
-.install-badge.show{display:inline-flex}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(39,174,96,.4)}50%{box-shadow:0 0 0 6px rgba(39,174,96,0)}}
-.install-badge.pulse{animation:pulse 2s infinite}
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:9px 20px;border-radius:20px;font-size:13px;display:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.35);white-space:nowrap}
 /* cloud bar */
 .cloud-bar{background:#e8f4fd;border:1px solid #bce0fd;color:#1d6fa5;padding:11px 13px;border-radius:8px;font-size:13px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 [data-theme=dark] .cloud-bar{background:#1a2635;border-color:#243b53;color:#64b5f6}
@@ -149,20 +119,23 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 .my-pin{background:#e74c3c}
 .pin-popup{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--pc);line-height:1.4}
 .pin-popup .pl{font-size:11px;color:#555;font-family:'Segoe UI',sans-serif;font-weight:400}
+/* ── Share Sheet ── */
+.share-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:9998}
+.share-sheet{background:var(--card);border-radius:16px 16px 0 0;padding:18px 16px 22px;width:100%;max-width:500px;box-shadow:0 -6px 20px var(--sh)}
+.share-sheet h3{margin:0 0 14px;text-align:center;font-size:14px;color:var(--tx);font-weight:700}
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 6px;margin-bottom:14px}
+.share-item{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;background:none;border:none;font-family:inherit}
+.share-icon{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff}
+.share-lbl{font-size:11px;color:var(--tx)}
+.share-close{width:100%;padding:11px;border-radius:8px;background:transparent;color:var(--pc);font-weight:700;cursor:pointer;border:2px solid var(--pc);font-size:14px}
 /* ── Bulk Add ── */
-.bulk-box{background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.3);border-radius:10px;padding:14px;margin-top:14px}
-.bulk-box h4{margin:0 0 10px;font-size:14px;color:#27ae60}
-.bulk-hint{font-size:11px;color:#888;margin:-4px 0 10px;line-height:1.5}
-.bulk-count{font-size:12px;font-weight:700;color:var(--pc);margin-bottom:8px}
-.bulk-loc-row{display:flex;gap:8px;align-items:stretch}
-.bulk-loc-row input{flex:1}
-.bulk-loc-row button{width:auto;margin:0;padding:11px 14px;white-space:nowrap}
-.bulk-preview{max-height:140px;overflow-y:auto;border:1px solid var(--bd);border-radius:8px;margin-top:10px;display:none}
-.bulk-preview .bp-item{padding:6px 12px;border-bottom:1px solid var(--bd);font-family:'IBM Plex Mono',monospace;font-size:12px;display:flex;justify-content:space-between;gap:8px}
-.bulk-preview .bp-item:last-child{border-bottom:none}
-.bulk-preview .bp-num{color:var(--pc);font-weight:700}
-.bulk-preview .bp-dup{font-size:10px;color:#e67e22;font-weight:700}
-.bulk-preview .bp-new{font-size:10px;color:#27ae60;font-weight:700}
+.bulk-toggle{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:var(--pc);color:#fff;border:none;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.bulk-toggle.on{background:#e67e22}
+.bulk-row{display:flex;gap:8px}
+.bulk-row .ig{flex:1;margin-bottom:0}
+.bulk-hint{font-size:11px;color:#888;margin-top:4px}
+.bulk-preview{font-size:12px;font-weight:700;color:var(--pc);text-align:center;margin-top:8px;min-height:16px}
+.bulk-preview-box{max-height:180px;overflow-y:auto;border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-top:6px;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.6;white-space:pre-line;background:var(--bg);color:var(--tx)}
 </style>
 </head>
 <body>
@@ -170,15 +143,14 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 <!-- ══ BLOCK SCREEN ══ -->
 <div id="blk" class="block" style="display:none">
   <h1 style="font-size:28px">🔒</h1>
-  <h2 id="blk-title" style="color:#ff4444">এই ডিভাইসটি একটিভ করা হয়নি!</h2>
-  <p id="blk-desc" style="color:#bbb;font-size:14px;max-width:340px">এডমিন পাসওয়ার্ড দিয়ে একটিভ করুন।</p>
-  <button id="btn-activate-blk" class="btn" style="max-width:220px;margin-top:16px;background:#2b579a" onclick="goToAuth()">🔓 একটিভ করতে ক্লিক করুন</button>
+  <h2 id="blk-title" style="color:#ff4444">This device is not activated!</h2>
+  <p id="blk-desc" style="color:#bbb;font-size:14px;max-width:340px">Activate it using the admin password.</p>
+  <button id="btn-activate-blk" class="btn" style="max-width:220px;margin-top:16px;background:#2b579a" onclick="goToAuth()">🔓 Click to Activate</button>
 </div>
 
 <header>
   <h1 id="app-title">Subscription Tracker Pro</h1>
   <div class="hc">
-    <span id="install-badge" class="install-badge" onclick="showInstallPopup()">📲 ইনস্টল</span>
     <button class="ib" onclick="toggleTheme()">🌙</button>
   </div>
 </header>
@@ -192,29 +164,29 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       <span id="cloud-lbl">☁️ GitHub Cloud Ready</span>
       <div style="display:flex;align-items:center;gap:6px">
         <span class="qbadge" id="qbadge"></span>
-        <button class="btn" style="width:auto;margin:0;padding:5px 11px;font-size:12px" onclick="doSync()">🔄 সিঙ্ক</button>
+        <button class="btn" style="width:auto;margin:0;padding:5px 11px;font-size:12px" onclick="doSync()">🔄 Sync</button>
       </div>
     </div>
     <div class="card">
-      <h2 id="search-title">সাবস্ক্রিপশন লোকেশন খুঁজুন</h2>
+      <h2 id="search-title">Find Subscription Location</h2>
       <div class="ig">
-        <label id="lbl-search-sub" style="font-size:12px;font-weight:700">সাবস্ক্রিপশন নাম্বার:</label>
+        <label id="lbl-search-sub" style="font-size:12px;font-weight:700">Subscription Number:</label>
         <input type="text" id="si" class="mono" placeholder="xxx/xx/xxx" inputmode="decimal" oninput="onSearchInput(this)">
         <div id="sugg" class="sugg"></div>
       </div>
-      <div id="lbl-or" style="text-align:center;font-weight:700;color:var(--pc);margin:4px 0;font-size:13px">— অথবা —</div>
+      <div id="lbl-or" style="text-align:center;font-weight:700;color:var(--pc);margin:4px 0;font-size:13px">— OR —</div>
       <div class="ig">
-        <label id="lbl-search-st" style="font-size:12px;font-weight:700">স্টেশন নাম্বার:</label>
-        <input type="number" id="sti" placeholder="উদা: 450" inputmode="numeric">
+        <label id="lbl-search-st" style="font-size:12px;font-weight:700">Station Number:</label>
+        <input type="number" id="sti" placeholder="e.g. 450" inputmode="numeric">
       </div>
-      <button id="btn-search" class="btn" onclick="doSearch()">🔍 সার্চ করুন</button>
+      <button id="btn-search" class="btn" onclick="doSearch()">🔍 Search</button>
       <div id="res-box" class="card" style="display:none;margin-top:16px;border-left:5px solid var(--pc);padding:14px">
-        <p style="margin:4px 0"><strong id="lbl-res-sub">📌 সাবস্ক্রিপশন নং:</strong> <span id="res-id"></span></p>
-        <p style="margin:4px 0"><strong id="lbl-res-loc">📍 লোকেশন:</strong> <span id="res-loc"></span></p>
+        <p style="margin:4px 0"><strong id="lbl-res-sub">📌 Subscription No:</strong> <span id="res-id"></span></p>
+        <p style="margin:4px 0"><strong id="lbl-res-loc">📍 Location:</strong> <span id="res-loc"></span></p>
         <div class="ab">
-          <button id="btn-map-res" class="bm" onclick="openMap()">🗺️ ম্যাপ</button>
-          <button id="btn-copy-res" class="bc" onclick="copyLoc()">📋 কপি</button>
-          <button id="btn-share-res" class="bs" onclick="shareLoc()">🔗 শেয়ার</button>
+          <button id="btn-map-res" class="bm" onclick="openMap()">🗺️ Map</button>
+          <button id="btn-copy-res" class="bc" onclick="copyLoc()">📋 Copy</button>
+          <button id="btn-share-res" class="bs" onclick="shareLoc()">🔗 Share</button>
         </div>
         <div id="map-box" class="map-box"><iframe id="map-fr" src="" loading="lazy" allowfullscreen></iframe></div>
       </div>
@@ -224,7 +196,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     <!-- ══ NEARBY MAP ══ -->
     <div class="nearby-card">
       <div class="nearby-header">
-        <h3 id="nearby-title">📍 আশেপাশের সাবস্ক্রিপশন</h3>
+        <h3 id="nearby-title">📍 Nearby Subscriptions</h3>
         <div class="nearby-controls">
           <select class="radius-sel" id="radius-sel" onchange="refreshNearbyMap()">
             <option value="300">300m</option>
@@ -233,84 +205,63 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
             <option value="2000">2 km</option>
             <option value="5000">5 km</option>
           </select>
-          <button class="btn" style="width:auto;margin:0;padding:5px 10px;font-size:12px" id="btn-locate" onclick="locateAndLoad()">📡 লোকেট</button>
+          <button class="btn" style="width:auto;margin:0;padding:5px 10px;font-size:12px" id="btn-locate" onclick="locateAndLoad()">📡 Locate</button>
         </div>
       </div>
       <div id="nearby-map"></div>
-      <div class="nearby-count" id="nearby-count">📡 "লোকেট" বাটন চাপুন — আশেপাশের সাবস্ক্রিপশন দেখুন</div>
+      <div class="nearby-count" id="nearby-count">📡 Press "Locate" to see nearby subscriptions</div>
     </div>
   </div>
 
   <!-- ══ ADD ══ -->
   <div id="s-add" class="screen">
-    <div class="card">
-      <h2 id="add-title">নতুন লোকেশন সেট করুন</h2>
-      <div id="vblock" class="vblock" style="display:none">🚫 আপনার Role: Viewer — ডাটা Add করার অনুমতি নেই।</div>
+    <div class="card" style="position:relative">
+      <h2 id="add-title">Set New Location</h2>
+      <button id="btn-bulk-toggle" class="bulk-toggle" onclick="toggleBulkMode()" title="Add multiple numbers at once">🔢</button>
+      <div id="vblock" class="vblock" style="display:none">🚫 Your Role: Viewer — You cannot add data.</div>
       <div id="add-form">
-        <button id="btn-bulk-toggle" class="btn btn-green" style="margin-bottom:14px" onclick="toggleAddBulk()">➕ একই লোকেশনে একাধিক নাম্বার যোগ করুন</button>
+        <div class="ig" id="single-sub-group"><label id="lbl-sub-f">Subscription Number</label>
+          <input type="text" id="f-sub" class="mono" placeholder="xxx/xx/xxx" inputmode="decimal" oninput="fmtSub(this)"></div>
+        <div class="ig" id="single-st-group"><label id="lbl-st-f">Station ID</label>
+          <input type="number" id="f-st" placeholder="e.g. 450" inputmode="numeric"></div>
 
-        <!-- ══ Inline Bulk Panel (Add page) ══ -->
-        <div id="add-bulk-panel" class="bulk-box" style="display:none">
-          <h4>➕ একই লোকেশনে একাধিক সাবস্ক্রিপশন</h4>
-          <p class="bulk-hint">রেঞ্জ দিয়ে অটো-জেনারেট করুন অথবা প্রতি লাইনে একটি করে নাম্বার লিখুন।</p>
-
-          <div style="background:rgba(43,87,154,.06);border:1px solid rgba(43,87,154,.25);border-radius:8px;padding:12px;margin-bottom:12px">
-            <label style="font-size:12px;font-weight:700;color:var(--pc);display:block;margin-bottom:4px">বেস সাবস্ক্রিপশন নাম্বার (৫টি সংখ্যা আবশ্যক):</label>
-            <input type="text" id="add-range-base" class="mono" placeholder="123/45" inputmode="numeric" maxlength="6" oninput="formatBaseSubscription(this)" style="margin-bottom:10px">
-            <div style="display:flex;gap:8px;margin-bottom:10px">
-              <div style="flex:1">
-                <label style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">কত থেকে:</label>
-                <input type="number" id="add-range-from" placeholder="1" inputmode="numeric">
-              </div>
-              <div style="flex:1">
-                <label style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">কত পর্যন্ত:</label>
-                <input type="number" id="add-range-to" placeholder="10" inputmode="numeric">
-              </div>
-            </div>
-            <label style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">ব্যতিক্রম নাম্বার (ফুলস্টপ দিয়ে, ঐচ্ছিক):</label>
-            <input type="text" id="add-range-exclude" class="mono" placeholder="032.037.041" inputmode="numeric" style="margin-bottom:10px">
-            <div style="display:flex;gap:8px;align-items:center">
-              <label style="font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;cursor:pointer">
-                <input type="checkbox" id="add-range-pad" checked style="width:auto"> শূন্য প্যাডিং (001)
-              </label>
-            </div>
-            <button class="btn" style="margin-top:10px;background:var(--pc);padding:10px;font-size:13px" onclick="generateRangeAdd()">⚡ রেঞ্জ থেকে অটো-জেনারেট করুন</button>
+        <!-- ══ BULK ADD GROUP ══ -->
+        <div id="bulk-sub-group" style="display:none">
+          <div class="ig">
+            <label id="lbl-bulk-prefix">Subscription Prefix</label>
+            <input type="text" id="b-prefix" class="mono" placeholder="123/45/" inputmode="numeric" maxlength="8" oninput="fmtBulkPrefix(this)">
+            <div class="bulk-hint" id="bulk-hint-prefix">A (/) is added automatically after the 3rd and 5th digits — e.g. 123/45/ (all 5 digits required)</div>
           </div>
-
-          <div class="ig" style="margin-bottom:10px">
-            <label style="font-size:12px;font-weight:700;color:#27ae60">সাবস্ক্রিপশন নাম্বার তালিকা:</label>
-            <textarea id="add-bulk-subs" class="mono" placeholder="123/45/678&#10;234/56/789&#10;345/67/890" oninput="updateAddBulkPreview()"></textarea>
-            <div class="bulk-count" id="add-bulk-count">0 টি নাম্বার</div>
-          </div>
-          <div class="ig" style="margin-bottom:10px">
-            <label style="font-size:12px;font-weight:700;color:#27ae60">লোকেশন / ঠিকানা:</label>
-            <div class="bulk-loc-row">
-              <input type="text" id="add-bulk-loc" placeholder="ঠিকানা অথবা coordinates">
-              <button class="btn btn-out" style="border-color:#27ae60;color:#27ae60" onclick="getBulkGPSAdd()">📍 GPS</button>
+          <div class="bulk-row">
+            <div class="ig">
+              <label id="lbl-bulk-start">Start (last 3 digits)</label>
+              <input type="text" id="b-start" class="mono" placeholder="001" inputmode="numeric" maxlength="3" oninput="sanitizeDigits(this,3)">
+            </div>
+            <div class="ig">
+              <label id="lbl-bulk-end">End (last 3 digits)</label>
+              <input type="text" id="b-end" class="mono" placeholder="050" inputmode="numeric" maxlength="3" oninput="sanitizeDigits(this,3)">
             </div>
           </div>
-          <div class="bulk-preview" id="add-bulk-preview"></div>
-          <div class="prog-wrap" id="add-bulk-prog-wrap">
-            <div class="prog-bg"><div class="prog-fill" id="add-bulk-prog-fill"></div></div>
-            <div class="prog-lbl" id="add-bulk-prog-lbl">0%</div>
+          <div class="bulk-hint" id="bulk-hint-range">All numbers from start to end will be created (same location)</div>
+          <div class="ig" style="margin-top:12px">
+            <label id="lbl-bulk-extra">Extra scattered numbers (optional)</label>
+            <input type="text" id="b-extra" class="mono" placeholder="e.g. 5.12.99" inputmode="numeric" oninput="sanitizeExtra(this)">
+            <div class="bulk-hint" id="bulk-hint-extra">Separate each number with a full stop (.)</div>
           </div>
-          <button class="btn btn-green" onclick="bulkSaveAdd()">💾 সব সেভ ও আপলোড</button>
-          <button class="btn btn-out" style="margin-top:8px" onclick="toggleAddBulk()">✖ বন্ধ করুন</button>
+          <div class="bulk-preview" id="bulk-preview"></div>
+          <div class="bulk-preview-box" id="bulk-preview-list" style="display:none"></div>
+          <div class="prog-wrap" id="bulk-prog-wrap">
+            <div class="prog-bg"><div class="prog-fill" id="bulk-prog-fill"></div></div>
+            <div class="prog-lbl" id="bulk-prog-lbl">0%</div>
+          </div>
         </div>
 
-        <hr class="div">
-
-        <div class="ig"><label id="lbl-sub-f">সাবস্ক্রিপশন নাম্বার</label>
-          <input type="text" id="f-sub" class="mono" placeholder="xxx/xx/xxx" inputmode="decimal" oninput="fmtSub(this)"></div>
-        <div class="ig"><label id="lbl-st-f">স্টেশন আইডি</label>
-          <input type="number" id="f-st" placeholder="উদা: 450" inputmode="numeric"></div>
-        <div class="ig"><label id="lbl-loc-f">লোকেশন / ঠিকানা</label>
-          <input type="text" id="f-loc" placeholder="ঠিকানা অথবা coordinates"></div>
-        <button id="btn-gps" class="btn btn-out" onclick="getGPS()">📍 কারেন্ট লোকেশন নিন</button>
-        <div id="gps-status" style="font-size:11px;text-align:center;margin-top:6px;display:none"></div>
-        <button id="btn-save-entry" class="btn" style="margin-top:14px" onclick="saveEntry()">💾 সেভ ও আপলোড</button>
+        <div class="ig"><label id="lbl-loc-f">Location / Address</label>
+          <input type="text" id="f-loc" placeholder="Address or coordinates"></div>
+        <button id="btn-gps" class="btn btn-out" onclick="getGPS()">📍 Use Current Location</button>
+        <button id="btn-save-entry" class="btn" style="margin-top:14px" onclick="saveEntry()">💾 Save & Upload</button>
         <div class="ig" style="margin-top:14px">
-          <label id="lbl-pick-map" style="font-size:12px;font-weight:700;color:var(--pc)">🗺️ ম্যাপে পিন সেট করুন:</label>
+          <label id="lbl-pick-map" style="font-size:12px;font-weight:700;color:var(--pc)">🗺️ Set Pin on Map:</label>
           <div id="pick-map" class="map-pick"></div>
         </div>
       </div>
@@ -324,25 +275,25 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 
       <!-- Step 1: Password -->
       <div id="a-step1" class="astep active">
-        <p id="auth-step1-hint" style="text-align:center;font-size:13px;color:#888;margin-bottom:10px">ধাপ ১/২ — পাসওয়ার্ড লিখুন</p>
+        <p id="auth-step1-hint" style="text-align:center;font-size:13px;color:#888;margin-bottom:10px">Step 1/2 — Enter Password</p>
         <div class="ig">
-          <input type="password" id="a-pw" placeholder="পাসওয়ার্ড লিখুন..." autocomplete="current-password">
+          <input type="password" id="a-pw" placeholder="Enter password..." autocomplete="current-password">
         </div>
         <p id="a-err1" style="color:#e74c3c;font-size:13px;text-align:center;display:none">
-          ❌ ভুল পাসওয়ার্ড! আরো <span id="a-left">3</span> বার সুযোগ আছে।
+          ❌ Wrong password! <span id="a-left">3</span> attempts left.
         </p>
-        <button id="btn-auth-next" class="btn" onclick="verifyPw()">➡️ পরবর্তী ধাপ</button>
-        <button id="btn-auth-cancel" class="btn btn-out" style="margin-top:8px" onclick="cancelAuth()">বাতিল</button>
+        <button id="btn-auth-next" class="btn" onclick="verifyPw()">➡️ Next Step</button>
+        <button id="btn-auth-cancel" class="btn btn-out" style="margin-top:8px" onclick="cancelAuth()">Cancel</button>
       </div>
 
       <!-- Step 2: PIN -->
       <div id="a-step2" class="astep">
-        <p id="auth-step2-hint" style="text-align:center;font-size:13px;color:#888;margin-bottom:4px">ধাপ ২/২ — ৪ সংখ্যার PIN</p>
+        <p id="auth-step2-hint" style="text-align:center;font-size:13px;color:#888;margin-bottom:4px">Step 2/2 — 4-digit PIN</p>
         <div class="pin-dots">
           <div class="pd" id="pd0"></div><div class="pd" id="pd1"></div>
           <div class="pd" id="pd2"></div><div class="pd" id="pd3"></div>
         </div>
-        <p id="a-err2" style="color:#e74c3c;font-size:13px;text-align:center;display:none">❌ ভুল PIN!</p>
+        <p id="a-err2" style="color:#e74c3c;font-size:13px;text-align:center;display:none">❌ Wrong PIN!</p>
         <div class="pin-grid">
           <button class="pb" onclick="pp('1')">1</button><button class="pb" onclick="pp('2')">2</button><button class="pb" onclick="pp('3')">3</button>
           <button class="pb" onclick="pp('4')">4</button><button class="pb" onclick="pp('5')">5</button><button class="pb" onclick="pp('6')">6</button>
@@ -351,7 +302,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
           <button class="pb" onclick="pp('0')">0</button>
           <button class="pb pb-ok" onclick="verifyPin()">✓</button>
         </div>
-        <button id="btn-back-pw" class="btn btn-out" style="margin-top:12px" onclick="backToPw()">← পাসওয়ার্ডে ফিরুন</button>
+        <button id="btn-back-pw" class="btn btn-out" style="margin-top:12px" onclick="backToPw()">← Back to Password</button>
       </div>
     </div>
   </div>
@@ -361,9 +312,9 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     <div class="card">
       <h2 id="settings-title">⚙️ Settings & Admin Panel</h2>
 
-      <div class="sbox" id="stat-main">📊 মোট রেকর্ড: 0</div>
-      <div class="sbox sbox2" id="stat-local">📱 লোকাল ইম্পোর্ট: 0</div>
-      <div class="chunk-info" id="chunk-info">GitHub: লোড হচ্ছে...</div>
+      <div class="sbox" id="stat-main">📊 Total Records: 0</div>
+      <div class="sbox sbox2" id="stat-local">📱 Local Import: 0</div>
+      <div class="chunk-info" id="chunk-info">GitHub: Loading...</div>
 
       <!-- GitHub Config -->
       <div style="background:rgba(0,0,0,.04);padding:12px;border-radius:8px;border:1px solid var(--bd);margin-bottom:14px">
@@ -372,86 +323,37 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
         <input type="text" id="g-repo" placeholder="username/repo-name" style="font-size:12px;padding:8px;margin-bottom:8px">
         <label id="lbl-token" style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">Personal Access Token (PAT):</label>
         <input type="password" id="g-tok" placeholder="ghp_xxxxxxxxxxxx" style="font-size:12px;padding:8px;margin-bottom:8px">
-        <button id="btn-save-gh" class="btn" style="padding:10px;font-size:13px;margin-top:4px" onclick="saveGH()">💾 GitHub সেটিংস সেভ করুন</button>
+        <button id="btn-save-gh" class="btn" style="padding:10px;font-size:13px;margin-top:4px" onclick="saveGH()">💾 Save GitHub Settings</button>
       </div>
 
       <!-- Password Change -->
       <div class="pwbox">
-        <h4 id="pw-change-title">🔑 Password ও PIN পরিবর্তন করুন</h4>
+        <h4 id="pw-change-title">🔑 Change Password & PIN</h4>
         <div class="ig" style="margin-bottom:8px">
-          <label id="lbl-cur-pw" style="font-size:12px">বর্তমান Password:</label>
-          <input type="password" id="pw-cur" placeholder="বর্তমান পাসওয়ার্ড...">
+          <label id="lbl-cur-pw" style="font-size:12px">Current Password:</label>
+          <input type="password" id="pw-cur" placeholder="Current password...">
         </div>
         <div class="ig" style="margin-bottom:6px">
-          <label id="lbl-new-pw" style="font-size:12px">নতুন Password (min 6):</label>
-          <input type="password" id="pw-new" placeholder="নতুন পাসওয়ার্ড..." oninput="pwStrength(this.value)">
+          <label id="lbl-new-pw" style="font-size:12px">New Password (min 6):</label>
+          <input type="password" id="pw-new" placeholder="New password..." oninput="pwStrength(this.value)">
           <div style="background:var(--bd);border-radius:4px;height:6px;margin-top:5px;overflow:hidden">
             <div id="pw-bar" style="height:100%;width:0%;border-radius:4px;transition:all .3s"></div>
           </div>
           <div id="pw-lbl" style="font-size:11px;margin-top:2px"></div>
         </div>
         <div class="ig" style="margin-bottom:10px">
-          <label id="lbl-new-pin" style="font-size:12px">নতুন PIN (৪ সংখ্যা):</label>
-          <input type="password" id="pw-pin" placeholder="নতুন ৪ সংখ্যার PIN..." maxlength="4" inputmode="numeric">
+          <label id="lbl-new-pin" style="font-size:12px">New PIN (4 digits):</label>
+          <input type="password" id="pw-pin" placeholder="New 4-digit PIN..." maxlength="4" inputmode="numeric">
         </div>
-        <button id="btn-update-pw" class="btn btn-purple" onclick="changePw()">🔐 Password ও PIN আপডেট করুন</button>
-      </div>
-
-      <!-- ══ BULK ADD (একই লোকেশনে একাধিক সাবস্ক্রিপশন) ══ -->
-      <div class="bulk-box">
-        <h4 id="bulk-add-title">➕ একই লোকেশনে একাধিক সাবস্ক্রিপশন যোগ করুন</h4>
-        <p class="bulk-hint" id="bulk-hint">নিচের যেকোনো একটি পদ্ধতি ব্যবহার করুন — রেঞ্জ দিয়ে অটো-জেনারেট করুন অথবা প্রতি লাইনে একটি করে নাম্বার লিখুন।</p>
-
-        <!-- ── রেঞ্জ জেনারেটর ── -->
-        <div style="background:rgba(43,87,154,.06);border:1px solid rgba(43,87,154,.25);border-radius:8px;padding:12px;margin-bottom:12px">
-          <label id="lbl-range-base" style="font-size:12px;font-weight:700;color:var(--pc);display:block;margin-bottom:4px">বেস সাবস্ক্রিপশন নাম্বার (৫টি সংখ্যা আবশ্যক):</label>
-          <input type="text" id="range-base" class="mono" placeholder="123/45" inputmode="numeric" maxlength="6" oninput="formatBaseSubscription(this)" style="margin-bottom:10px">
-          <div style="display:flex;gap:8px;margin-bottom:10px">
-            <div style="flex:1">
-              <label id="lbl-range-from" style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">কত থেকে:</label>
-              <input type="number" id="range-from" placeholder="1" inputmode="numeric">
-            </div>
-            <div style="flex:1">
-              <label id="lbl-range-to" style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">কত পর্যন্ত:</label>
-              <input type="number" id="range-to" placeholder="10" inputmode="numeric">
-            </div>
-          </div>
-          <label id="lbl-range-exclude" style="font-size:11px;font-weight:700;display:block;margin-bottom:3px">ব্যতিক্রম নাম্বার (ফুলস্টপ দিয়ে, ঐচ্ছিক):</label>
-          <input type="text" id="range-exclude" class="mono" placeholder="032.037.041" inputmode="numeric" style="margin-bottom:10px">
-          <div style="display:flex;gap:8px;align-items:center">
-            <label style="font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;cursor:pointer">
-              <input type="checkbox" id="range-pad" checked style="width:auto"> শূন্য প্যাডিং (001)
-            </label>
-          </div>
-          <button id="btn-range-gen" class="btn" style="margin-top:10px;background:var(--pc);padding:10px;font-size:13px" onclick="generateRange()">⚡ রেঞ্জ থেকে অটো-জেনারেট করুন</button>
-        </div>
-
-        <div class="ig" style="margin-bottom:10px">
-          <label id="lbl-bulk-subs" style="font-size:12px;font-weight:700;color:#27ae60">সাবস্ক্রিপশন নাম্বার তালিকা:</label>
-          <textarea id="bulk-subs" class="mono" placeholder="123/45/678&#10;234/56/789&#10;345/67/890" oninput="updateBulkPreview()"></textarea>
-          <div class="bulk-count" id="bulk-count">0 টি নাম্বার</div>
-        </div>
-        <div class="ig" style="margin-bottom:10px">
-          <label id="lbl-bulk-loc" style="font-size:12px;font-weight:700;color:#27ae60">লোকেশন / ঠিকানা:</label>
-          <div class="bulk-loc-row">
-            <input type="text" id="bulk-loc" placeholder="ঠিকানা অথবা coordinates">
-            <button class="btn btn-out" style="border-color:#27ae60;color:#27ae60" onclick="getBulkGPS()">📍 GPS</button>
-          </div>
-        </div>
-        <div class="bulk-preview" id="bulk-preview"></div>
-        <div class="prog-wrap" id="bulk-prog-wrap">
-          <div class="prog-bg"><div class="prog-fill" id="bulk-prog-fill"></div></div>
-          <div class="prog-lbl" id="bulk-prog-lbl">0%</div>
-        </div>
-        <button id="btn-bulk-save" class="btn btn-green" onclick="bulkSave()">💾 সব সেভ ও আপলোড</button>
+        <button id="btn-update-pw" class="btn btn-purple" onclick="changePw()">🔐 Update Password & PIN</button>
       </div>
 
       <hr class="div">
 
       <!-- Record Table -->
       <div class="ig" style="margin-bottom:8px">
-        <label id="lbl-tbl-search">🔎 রেকর্ড সার্চ</label>
-        <input type="text" id="tbl-search" placeholder="সাবস্ক্রিপশন / স্টেশন দিয়ে সার্চ..." oninput="filterTable()">
+        <label id="lbl-tbl-search">🔎 Search Records</label>
+        <input type="text" id="tbl-search" placeholder="Search by subscription / station..." oninput="filterTable()">
       </div>
       <div class="prog-wrap" id="prog-wrap">
         <div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
@@ -459,7 +361,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       </div>
       <div class="tbox">
         <table>
-          <thead><tr><th id="th-sub">সাবস্ক্রিপশন নং</th><th id="th-loc">লোকেশন</th><th id="th-action" style="width:60px;text-align:center">অ্যাকশন</th></tr></thead>
+          <thead><tr><th id="th-sub">Subscription No</th><th id="th-loc">Location</th><th id="th-action" style="width:60px;text-align:center">Action</th></tr></thead>
           <tbody id="tbl-body"></tbody>
         </table>
       </div>
@@ -467,47 +369,45 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       <hr class="div">
 
       <!-- ══ USER CONTROL PANEL ══ -->
-      <h3 id="device-panel-title" style="font-size:14px;color:var(--pc);margin:0 0 10px">👥 ডিভাইস কন্ট্রোল প্যানেল</h3>
-      <button id="btn-device-sync" class="btn" style="margin-bottom:10px;padding:9px;font-size:13px;background:#8e44ad" onclick="syncDevicePanel()">🔄 সব ডিভাইস লোড করুন (GitHub Sync)</button>
+      <h3 id="device-panel-title" style="font-size:14px;color:var(--pc);margin:0 0 10px">👥 Device Control Panel</h3>
+      <button id="btn-device-sync" class="btn" style="margin-bottom:10px;padding:9px;font-size:13px;background:#8e44ad" onclick="syncDevicePanel()">🔄 Load All Devices (GitHub Sync)</button>
       <div id="up-list" style="border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:14px"></div>
 
       <hr class="div">
 
       <!-- Data buttons -->
       <button id="btn-export-all" class="btn btn-out" onclick="exportAll()">📤 Full Backup Export (JSON)</button>
-      <button id="btn-export-local" class="btn btn-out" style="border-color:#27ae60;color:#27ae60;margin-top:8px" onclick="exportLocal()">📤 লোকাল ডাটা Export</button>
-      <button id="btn-import" class="btn btn-green" style="margin-top:8px" onclick="document.getElementById('imp-file').click()">📂 ফাইল Import (.xlsx / .json)</button>
+      <button id="btn-export-local" class="btn btn-out" style="border-color:#27ae60;color:#27ae60;margin-top:8px" onclick="exportLocal()">📤 Export Local Data</button>
+      <button id="btn-import" class="btn btn-green" style="margin-top:8px" onclick="document.getElementById('imp-file').click()">📂 Import File (.xlsx / .json)</button>
       <input type="file" id="imp-file" style="display:none" accept=".json,.xlsx,.xls,.csv" onchange="importFile(event)">
-      <button id="btn-clear-all" class="btn btn-red" style="margin-top:8px" onclick="clearAll()">🗑️ সব ডাটা মুছে ফেলুন</button>
+      <button id="btn-clear-all" class="btn btn-red" style="margin-top:8px" onclick="clearAll()">🗑️ Clear All Data</button>
     </div>
   </div>
 
 </div><!-- /wrap -->
 
 <div class="bnav">
-  <div id="n-search" class="ni active" onclick="go('s-search','n-search')">🔍 সার্চ</div>
-  <div id="n-add"    class="ni"        onclick="go('s-add','n-add')">➕ নতুন সেট</div>
-  <div id="n-set"    class="ni"        onclick="navSettings()">⚙️ সেটিংস</div>
+  <div id="n-search" class="ni active" onclick="go('s-search','n-search')">🔍 Search</div>
+  <div id="n-add"    class="ni"        onclick="go('s-add','n-add')">➕ Add New</div>
+  <div id="n-set"    class="ni"        onclick="navSettings()">⚙️ Settings</div>
 </div>
 <div id="toast" class="toast"></div>
 
-<div id="install-overlay" class="install-overlay">
-  <div class="install-card">
-    <div class="install-icon">📱</div>
-    <div class="install-title">অ্যাপ ইনস্টল করুন</div>
-    <div class="install-desc">আপনার হোম স্ক্রিনে অ্যাপ হিসেবে ইনস্টল করে রাখুন — যেকোনো ব্রাউজার থেকে এক ক্লিকে খুলবে, ফুল স্ক্রিনে চলবে, অফলাইনেও কাজ করবে।</div>
-    <button class="install-btn" id="install-now-btn">📲 এখনই ইনস্টল করুন</button>
-    <button class="install-later" id="install-later-btn">পরে ইনস্টল করব</button>
-  </div>
-</div>
-
-<div id="share-overlay" class="share-overlay" onclick="closeShareSheet(event)">
-  <div class="share-sheet" onclick="event.stopPropagation()">
-    <div class="share-title">🔗 শেয়ার করুন</div>
-    <button id="native-share-btn" class="btn" style="margin-bottom:10px;background:#2b579a;font-size:14px" onclick="nativeShare()">📤 সব অ্যাপে শেয়ার করুন</button>
-    <div style="text-align:center;font-size:11px;color:#999;margin:6px 0 10px">— অথবা নির্দিষ্ট অ্যাপ বাছুন —</div>
-    <div class="share-grid" id="share-grid"></div>
-    <button class="share-cancel" onclick="closeShareSheet()">বন্ধ করুন</button>
+<!-- ══ SHARE SHEET ══ -->
+<div id="share-overlay" class="share-overlay" onclick="if(event.target===this)closeShareSheet()">
+  <div class="share-sheet">
+    <h3 id="share-sheet-title">Choose how to share</h3>
+    <div class="share-grid">
+      <button class="share-item" onclick="shareVia('whatsapp')"><span class="share-icon" style="background:#25D366">💬</span><span class="share-lbl">WhatsApp</span></button>
+      <button class="share-item" onclick="shareVia('facebook')"><span class="share-icon" style="background:#1877F2">📘</span><span class="share-lbl">Facebook</span></button>
+      <button class="share-item" onclick="shareVia('telegram')"><span class="share-icon" style="background:#229ED9">✈️</span><span class="share-lbl">Telegram</span></button>
+      <button class="share-item" onclick="shareVia('twitter')"><span class="share-icon" style="background:#000">✖️</span><span class="share-lbl">X</span></button>
+      <button class="share-item" onclick="shareVia('linkedin')"><span class="share-icon" style="background:#0A66C2">💼</span><span class="share-lbl">LinkedIn</span></button>
+      <button class="share-item" onclick="shareVia('sms')"><span class="share-icon" style="background:#7f8c8d">💬</span><span class="share-lbl">SMS</span></button>
+      <button class="share-item" onclick="shareVia('email')"><span class="share-icon" style="background:#e67e22">✉️</span><span class="share-lbl">Email</span></button>
+      <button class="share-item" onclick="shareVia('copy')"><span class="share-icon" style="background:#2b579a">📋</span><span class="share-lbl">Copy</span></button>
+    </div>
+    <button class="share-close" id="share-sheet-close" onclick="closeShareSheet()">Cancel</button>
   </div>
 </div>
 
@@ -515,14 +415,14 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 /* ═══════════════════════════════════════════════════════════
    Subscription Tracker Pro — v4  (All bugs fixed)
    Fixes:
-   1. generateDeviceFingerprint → নিজের device সবসময় Active হয় (Admin)
-   2. verifyPw / verifyPin → সঠিকভাবে settings খোলে
-   3. switchScreen → isAdmin reset সঠিক জায়গায়
-   4. changeDeviceRole → নিজের role নিজে বদলাতে পারবে না (disabled)
-   5. cancelAuth → block screen check করে তারপর redirect
-   6. saveEntry → Role check সঠিক
-   7. loadUserPanel → status/role object ও string দুটোই handle করে
-   8. Waiting device → Admin যে activate করবে সে-ই device Active হবে
+   1. generateDeviceFingerprint → own device is always Active (Admin)
+   2. verifyPw / verifyPin → settings open correctly
+   3. switchScreen → isAdmin reset in the right place
+   4. changeDeviceRole → cannot change your own role (disabled)
+   5. cancelAuth → checks block screen then redirects
+   6. saveEntry → Role check is correct
+   7. loadUserPanel → handles both status/role object and string
+   8. Waiting device → the admin who activates it becomes the active device
 ═══════════════════════════════════════════════════════════ */
 
   // ─── Constants ───────────────────────────────────────────
@@ -710,77 +610,51 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     } catch(e){}
     return null;
   }
-  let _metaCache = null;
   async function pushOne(key, val) {
-    return pushBatch([{key, val}]);
-  }
-  async function pushBatch(items) {
-    if (!GH_TOK || !items.length) return 0;
+    if (!GH_TOK) return false;
     try {
-      const meta = _metaCache || await ghMeta();
-      _metaCache = null;
-      let tot = meta.totalRecords || 0;
-      const maxCI = meta.totalChunks || 0;
-      const groups = {};
-      for (const it of items) {
-        const ci = Math.floor(tot / CHUNK);
-        if (!groups[ci]) groups[ci] = {};
-        groups[ci][it.key] = it.val;
-        tot++;
-      }
-      let pushedChunks = 0;
-      let pushedItems = 0;
-      for (const ci of Object.keys(groups).sort((a,b)=>a-b)) {
-        const chunk = await ghChunk(Number(ci)) || {};
-        Object.assign(chunk, groups[ci]);
-        const ok = await ghPush(`chunks/chunk_${ci}.json`, JSON.stringify(chunk), `Add ${Object.keys(groups[ci]).length} records`);
-        if (ok) { pushedChunks++; pushedItems += Object.keys(groups[ci]).length; }
-      }
-      const finalCI = Math.floor((tot - 1) / CHUNK);
+      const meta  = await ghMeta();
+      const tot   = (meta.totalRecords||0)+1;
+      const ci    = Math.floor((tot-1)/CHUNK);
+      const chunk = await ghChunk(ci)||{};
+      chunk[key]  = val;
+      const ok    = await ghPush(`chunks/chunk_${ci}.json`, JSON.stringify(chunk), `Add ${key}`);
+      if (!ok) return false;
       await ghPush('meta.json', JSON.stringify({
-        totalRecords: tot,
-        totalChunks: Math.max(maxCI, finalCI + 1),
-        lastUpdated: new Date().toISOString()
+        totalRecords:tot,
+        totalChunks:Math.max(meta.totalChunks||1, ci+1),
+        lastUpdated:new Date().toISOString()
       }), 'Update meta');
-      return pushedItems;
-    } catch(e){ return 0; }
+      return true;
+    } catch(e){ return false; }
   }
   async function doSync() {
     const el = document.getElementById('cloud-lbl');
-    el.textContent = "⏳ সিঙ্ক হচ্ছে...";
+    el.textContent = "⏳ Syncing...";
     showToast(t("toastSyncing"));
     try {
       const meta = await ghMeta();
       const tc   = meta.totalChunks||0;
-      const syncedChunks = parseInt(ls('syncedChunks')||'0', 10);
       let imp = 0;
       for (let i=0; i<tc; i++) {
         const ch = await ghChunk(i);
         if (ch) {
           await iBulk(SM, ch, null);
           Object.keys(ch).forEach(k=>MEM.set(k,ch[k]));
-          if (i >= syncedChunks) imp += Object.keys(ch).length;
+          imp += Object.keys(ch).length;
         }
         el.textContent = `⏳ ${i+1}/${tc} chunks…`;
       }
-      lss('syncedChunks', String(tc));
-      lss('lastSyncTime', new Date().toISOString());
       // flush queue
       const q = await getQueue();
-      if (q.length) {
-        const batch = q.map(it => ({key: it.key, val: it.location}));
-        await pushBatch(batch);
-        await iClear(SQ);
-      }
+      for (const it of q) await pushOne(it.key, it.location);
+      await iClear(SQ);
       refreshQBadge();
       // ✅ Device registry sync
       await syncUDB();
       loadUserPanel();
       updateStats();
-      const newChunks = Math.max(0, tc - syncedChunks);
-      el.textContent = imp > 0
-        ? `✅ ${imp.toLocaleString()} টি নতুন রেকর্ড সিঙ্ক হয়েছে`
-        : `✅ সব ডাটা আপ-টু-ডেট (${tc} chunks)`;
+      el.textContent = `✅ ${imp.toLocaleString()} ${t("toastSyncDone")}`;
       showToast(t("toastSyncDone"));
       refreshChunkInfo(meta);
     } catch(e) {
@@ -796,15 +670,9 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   }
   async function refreshChunkInfo(meta) {
     if (!meta) meta = await ghMeta();
-    const synced = parseInt(ls('syncedChunks')||'0', 10);
-    const lastTime = ls('lastSyncTime');
-    const el = document.getElementById('chunk-info');
-    if (meta.totalChunks) {
-      const cached = Math.min(synced, meta.totalChunks);
-      el.textContent = `GitHub: ${meta.totalChunks} chunks | ${(meta.totalRecords||0).toLocaleString()} records | ${meta.lastUpdated ? new Date(meta.lastUpdated).toLocaleString() : ''}${cached ? ` | ক্যাশ: ${cached}/${meta.totalChunks} chunks${lastTime ? ' (' + new Date(lastTime).toLocaleString() + ')' : ''}` : ''}`;
-    } else {
-      el.textContent = 'GitHub: meta.json পাওয়া যায়নি';
-    }
+    document.getElementById('chunk-info').textContent = meta.totalChunks
+      ? `GitHub: ${meta.totalChunks} chunks | ${(meta.totalRecords||0).toLocaleString()} records | ${meta.lastUpdated ? new Date(meta.lastUpdated).toLocaleString() : ''}`
+      : 'GitHub: meta.json not found';
   }
 
   // ─── UserDB helpers ───────────────────────────────────────
@@ -827,7 +695,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     devId = id;
     const udb = getUDB();
     if (!udb[id]) {
-      // নতুন device — প্রথম device হলে Admin, বাকি Waiting/Viewer
+      // New device — first device becomes Admin, others Waiting/Viewer
       const isFirst = Object.keys(udb).length === 0;
       udb[id] = {
         status: isFirst ? 'Active' : 'Waiting',
@@ -851,9 +719,9 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     if (status==='Suspended'||status==='Waiting') {
       blk.style.display = 'flex';
       document.getElementById('blk-title').textContent =
-        status==='Waiting' ? "এই ডিভাইসটি একটিভ করা হয়নি!" : "🚫 ডিভাইসটি সাসপেন্ড করা হয়েছে!";
+        status==='Waiting' ? "This device is not activated!" : "🚫 This device has been suspended!";
       document.getElementById('blk-desc').textContent =
-        status==='Waiting' ? "এডমিন পাসওয়ার্ড দিয়ে একটিভ করুন।" : "আপনার অ্যাডমিনের সাথে যোগাযোগ করুন।";
+        status==='Waiting' ? "Activate it using the admin password." : "Please contact your admin.";
     } else {
       blk.style.display = 'none';
     }
@@ -865,7 +733,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     // Banner
     const icons = {Admin:'👑', Editor:'✏️', Viewer:'👁️'};
     const bn = document.getElementById('role-banner');
-    bn.textContent  = `${icons[myRole]||''} আপনার Role: ${myRole}`;
+    bn.textContent  = `${icons[myRole]||''} Your Role: ${myRole}`;
     bn.className    = `rbanner ${myRole.toLowerCase()}`;
     bn.style.display = 'block';
     // Add screen
@@ -887,13 +755,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       await openDB();
       document.getElementById('cloud-lbl').textContent = '⏳ Index building...';
       await buildIndex();
-      const synced = parseInt(ls('syncedChunks')||'0', 10);
-      const lastTime = ls('lastSyncTime');
-      if (synced > 0 && lastTime) {
-        document.getElementById('cloud-lbl').textContent = `📦 ক্যাশ লোডেড (${synced} chunks, ${new Date(lastTime).toLocaleString()})`;
-      } else {
-        document.getElementById('cloud-lbl').textContent = t('cloudReady');
-      }
+      document.getElementById('cloud-lbl').textContent = t('cloudReady');
     } catch(e){ console.error(e); }
     initDevice();
     checkBlock();
@@ -901,7 +763,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     applyLang();
     updateStats();
     refreshQBadge();
-    // নিজের device GitHub registry তে push করো
+    // Push own device to GitHub registry
     setTimeout(async () => {
       const udb = getUDB();
       await pushUDBtoGitHub(udb);
@@ -909,19 +771,15 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     window.addEventListener('online', async ()=>{
       showToast(t('toastNetwork'));
       const q = await getQueue();
-      if (q.length) {
-        const batch = q.map(it => ({key: it.key, val: it.location}));
-        await pushBatch(batch);
-        await iClear(SQ);
-      }
-      refreshQBadge();
+      for (const it of q) await pushOne(it.key, it.location);
+      await iClear(SQ); refreshQBadge();
     });
     setInterval(touchActive, 30000);
   };
 
   // ─── Navigation ───────────────────────────────────────────
   function go(sid, nid) {
-    // Settings থেকে বের হলে admin lock
+    // Lock admin when leaving Settings
     if (document.getElementById('s-settings').classList.contains('active') && sid!=='s-settings')
       isAdmin = false;
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -1000,7 +858,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     if (!pwOk) { showStep(1); return; }
     if (pinBuf === getAdminPin()) {
       isAdmin = true; pwOk = false;
-      // যদি device Waiting থাকে → Active করে দাও
+      // If device is Waiting → make it Active
       const udb = getUDB();
       if (udb[devId] && getStatus(migrateRec(udb[devId]))==='Waiting') {
         udb[devId] = migrateRec(udb[devId]);
@@ -1049,7 +907,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   }
 
   // ─── User Control Panel ───────────────────────────────────
-  // GitHub-এ udb সিঙ্ক করা হয় যাতে সব device একে অপরকে দেখতে পায়
+  // Sync udb to GitHub so all devices can see each other
   const UDB_GH_PATH = 'device_registry.json';
 
   async function pushUDBtoGitHub(udb) {
@@ -1069,17 +927,17 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   }
 
   async function syncUDB() {
-    // GitHub থেকে পড়ো, merge করো, push করো
+    // Read from GitHub, merge, then push
     const remote = await pullUDBfromGitHub();
     if (!remote) return;
     const local  = getUDB();
-    // Merge: remote entries + local entries (local lastActive বেশি হলে local জিতবে)
+    // Merge: remote entries + local entries (local wins if lastActive is newer)
     const merged = { ...remote };
     Object.keys(local).forEach(id => {
       if (!merged[id]) {
         merged[id] = local[id];
       } else {
-        // lastActive তুলনা করে newer রাখো
+        // Compare lastActive and keep the newer one
         const rTime = merged[id].lastActive ? new Date(merged[id].lastActive).getTime() : 0;
         const lTime = local[id].lastActive  ? new Date(local[id].lastActive).getTime()  : 0;
         if (lTime > rTime) merged[id] = { ...merged[id], ...local[id] };
@@ -1098,13 +956,13 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     if (!ids.length) {
       el.innerHTML = `
         <div style="padding:14px;text-align:center;color:#aaa;font-size:13px">
-          কোনো ডিভাইস নেই<br>
-          <small style="font-size:11px">GitHub Repo ও Token সেট করে Sync করুন</small>
+          No devices found<br>
+          <small style="font-size:11px">Set GitHub Repo & Token then Sync</small>
         </div>`;
       return;
     }
 
-    // নিজেরটা আগে দেখাও, তারপর বাকিগুলো
+    // Show own device first, then the rest
     const sorted = [devId, ...ids.filter(id => id !== devId)];
 
     sorted.forEach(id => {
@@ -1115,20 +973,20 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       const lastA  = rec.lastActive;
       const isMe   = id === devId;
       const sBg    = status==='Active'?'#27ae60':status==='Waiting'?'#f39c12':'#c0392b';
-      const togLbl = status==='Active' ? 'সাসপেন্ড' : 'একটিভ করুন';
+      const togLbl = status==='Active' ? 'Suspend' : 'Activate';
       const togBg  = status==='Active' ? '#e74c3c' : '#27ae60';
       const lastTx = lastA
         ? `⏱ ${new Date(lastA).toLocaleString('bn-BD')}`
-        : '⏱ কখনো সক্রিয় হয়নি';
+        : '⏱ Never active';
 
       const row = document.createElement('div');
       row.className = 'up-row';
-      // ✅ Fix: isMe হলেও Role dropdown enabled — শুধু Status toggle disabled
+      // ✅ Fix: Role dropdown stays enabled even for isMe — only Status toggle disabled
       row.innerHTML = `
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
             <span class="up-id">${id}</span>
-            ${isMe ? '<span style="color:var(--pc);font-weight:700;font-size:11px;white-space:nowrap">(আপনি)</span>' : ''}
+            ${isMe ? '<span style="color:var(--pc);font-weight:700;font-size:11px;white-space:nowrap">(You)</span>' : ''}
             <span class="badge b-${role.toLowerCase()}">${role==='Admin'?'👑':role==='Editor'?'✏️':'👁️'} ${role}</span>
             <span class="badge" style="background:${sBg}">${status}</span>
           </div>
@@ -1142,7 +1000,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
           </select>
           <button class="stbtn" style="background:${togBg}"
             onclick="toggleStatus('${id}')"
-            ${isMe ? 'disabled title="নিজের status পরিবর্তন করা যাবে না"' : ''}>
+            ${isMe ? 'disabled title="You cannot change your own status"' : ''}>
             ${togLbl}
           </button>
         </div>`;
@@ -1156,7 +1014,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     udb[id] = migrateRec(udb[id]);
     udb[id].role = newRole;
     setUDB(udb);
-    pushUDBtoGitHub(udb); // GitHub এ push
+    pushUDBtoGitHub(udb); // Push to GitHub
     showToast(`✅ Role → ${newRole}`);
     loadUserPanel();
     if (id === devId) applyRole();
@@ -1169,7 +1027,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     udb[id] = migrateRec(udb[id]);
     udb[id].status = udb[id].status === 'Active' ? 'Suspended' : 'Active';
     setUDB(udb);
-    pushUDBtoGitHub(udb); // GitHub এ push
+    pushUDBtoGitHub(udb); // Push to GitHub
     loadUserPanel();
     checkBlock();
     showToast(`✅ Status → ${udb[id].status}`);
@@ -1194,6 +1052,122 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     if(p.length===2)f+='.'+p[1].replace(/\D/g,'').substr(0,3);
     inp.value=f;
   }
+
+  // ─── Bulk Add ─────────────────────────────────────────────
+  let bulkMode = false;
+  function toggleBulkMode() {
+    bulkMode = !bulkMode;
+    document.getElementById('bulk-sub-group').style.display   = bulkMode ? 'block' : 'none';
+    document.getElementById('single-sub-group').style.display = bulkMode ? 'none'  : 'block';
+    document.getElementById('single-st-group').style.display  = bulkMode ? 'none'  : 'block';
+    document.getElementById('btn-bulk-toggle').classList.toggle('on', bulkMode);
+    updateBulkPreview();
+  }
+  function fmtBulkPrefix(inp) {
+    const v = inp.value.replace(/\D/g,'').substr(0,5);
+    let f='';
+    if (v.length>0) f += v.substr(0,3);
+    if (v.length>3) f += '/'+v.substr(3,2);
+    if (v.length>=5) f += '/';
+    inp.value = f;
+    updateBulkPreview();
+  }
+  function sanitizeDigits(inp, maxLen) {
+    inp.value = inp.value.replace(/\D/g,'').substr(0,maxLen);
+    updateBulkPreview();
+  }
+  function sanitizeExtra(inp) {
+    inp.value = inp.value.replace(/[^0-9.]/g,'');
+    updateBulkPreview();
+  }
+  function buildBulkList() {
+    const prefix = document.getElementById('b-prefix').value.trim();
+    const start  = document.getElementById('b-start').value.trim();
+    const end    = document.getElementById('b-end').value.trim();
+    const extra  = document.getElementById('b-extra').value.trim();
+    if (!/^\d{3}\/\d{2}\/$/.test(prefix)) return { keys:[], error: t('bulkErrPrefix') };
+    const nums = new Set();
+    if (start !== '' || end !== '') {
+      if (start === '' || end === '') return { keys:[], error: t('bulkErrRangeBoth') };
+      const s = parseInt(start,10), e = parseInt(end,10);
+      if (isNaN(s) || isNaN(e) || s > e) return { keys:[], error: t('bulkErrRangeOrder') };
+      if ((e - s + 1) > 1000) return { keys:[], error: t('bulkErrTooMany') };
+      for (let i=s; i<=e; i++) nums.add(String(i).padStart(3,'0'));
+    }
+    if (extra) {
+      const parts = extra.split('.').map(x=>x.trim()).filter(Boolean);
+      for (const p of parts) {
+        if (!/^\d{1,3}$/.test(p)) return { keys:[], error: t('bulkErrExtra') };
+        nums.add(p.padStart(3,'0'));
+      }
+    }
+    if (!nums.size) return { keys:[], error: t('bulkErrEmpty') };
+    if (nums.size > 1000) return { keys:[], error: t('bulkErrTooMany') };
+    const keys = Array.from(nums).sort().map(n => prefix+n);
+    return { keys, error: null };
+  }
+  function updateBulkPreview() {
+    const el   = document.getElementById('bulk-preview');
+    const list = document.getElementById('bulk-preview-list');
+    if (!el || !list) return;
+    if (!bulkMode) { el.textContent=''; list.style.display='none'; list.textContent=''; return; }
+    const prefix = document.getElementById('b-prefix').value.trim();
+    if (!prefix) { el.textContent=''; list.style.display='none'; list.textContent=''; return; }
+    const { keys, error } = buildBulkList();
+    if (error) {
+      el.style.color = '#e74c3c'; el.textContent = error;
+      list.style.display = 'none'; list.textContent = '';
+    } else {
+      el.style.color = 'var(--pc)'; el.textContent = `✅ ${keys.length} ${t('bulkPreviewUnit')}`;
+      list.textContent = keys.join('\n');
+      list.style.display = 'block';
+    }
+  }
+  async function saveBulkEntries() {
+    if (myRole==='Viewer') { showToast(t("toastViewerAdd")); return; }
+    const loc = document.getElementById('f-loc').value.trim();
+    if (!loc) { showToast(t("toastEmptyField")); return; }
+    const { keys, error } = buildBulkList();
+    if (error) { showToast(error); return; }
+
+    const data = {}; keys.forEach(k => data[k] = loc);
+    const pw=document.getElementById('bulk-prog-wrap');
+    const pf=document.getElementById('bulk-prog-fill');
+    const pl=document.getElementById('bulk-prog-lbl');
+    pw.style.display='block'; pf.style.width='0%'; pl.textContent='';
+
+    await iBulk(SM, data, (d,tt)=>{
+      const p=~~(d/tt*100); pf.style.width=p+'%'; pl.textContent=`${p}% (${d}/${tt})`;
+    });
+    keys.forEach(k => MEM.set(k, loc));
+    touchActive();
+
+    if (navigator.onLine) {
+      let up=0;
+      for (const k of keys) {
+        up++;
+        pl.textContent = `⏳ ${up}/${keys.length}`;
+        const ok = await pushOne(k, loc);
+        if (!ok) await enqueue(k, loc);
+      }
+      showToast(`✅ ${keys.length} ${t('bulkSavedUnit')}`);
+    } else {
+      for (const k of keys) await enqueue(k, loc);
+      refreshQBadge();
+      showToast(t("toastOffline"));
+    }
+    pw.style.display='none';
+
+    document.getElementById('b-prefix').value='';
+    document.getElementById('b-start').value='';
+    document.getElementById('b-end').value='';
+    document.getElementById('b-extra').value='';
+    document.getElementById('f-loc').value='';
+    updateBulkPreview();
+    go('s-search','n-search');
+    updateStats();
+  }
+
   function onSearchInput(inp) {
     fmtSub(inp);
     const q  = inp.value.trim();
@@ -1253,236 +1227,15 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   }
   function setLocField(la,ln){ document.getElementById('f-loc').value=`${la.toFixed(5)}, ${ln.toFixed(5)}`; }
   function getGPS() {
-    getHighAccuracyGPS((la, ln, acc) => {
-      setLocField(la, ln);
-      if (picker && pickerM) {
-        pickerM.setLatLng([la, ln]);
-        picker.setView([la, ln], 17);
-      }
-      const accM = Math.round(acc);
-      showToast(`📍 লোকেশন সেট হয়েছে (নিখুঁততা: ${accM}m)`);
-    }, (msg) => {
-      showToast(msg);
-    }, 'gps-status');
+    if (!navigator.geolocation) { showToast("GPS not supported!"); return; }
+    navigator.geolocation.getCurrentPosition(p=>{
+      setLocField(p.coords.latitude, p.coords.longitude);
+      if(picker&&pickerM){ pickerM.setLatLng([p.coords.latitude,p.coords.longitude]); picker.setView([p.coords.latitude,p.coords.longitude],15); }
+      showToast(t("toastGPSUpd"));
+    }, e=>showToast("GPS Error: "+e.message),{enableHighAccuracy:true,timeout:10000});
   }
-
-  // ─── High-accuracy GPS with retry + accuracy filter ───────────
-  function getHighAccuracyGPS(onSuccess, onFail, statusId) {
-    if (!navigator.geolocation) { onFail("❌ এই ব্রাউজারে GPS সাপোর্ট নেই!"); return; }
-
-    const statusEl = statusId ? document.getElementById(statusId) : null;
-    const setStat = (msg, color) => {
-      if (statusEl) { statusEl.textContent = msg; statusEl.style.color = color || '#888'; statusEl.style.display = 'block'; }
-    };
-
-    let bestPos = null;
-    let bestAcc = Infinity;
-    let attempts = 0;
-    const MAX_ATTEMPTS = 3;
-    const MAX_ACC_METERS = 50;
-
-    setStat("📡 GPS সিগন্যাল খোঁজা হচ্ছে...", "#2b579a");
-
-    function tryOnce() {
-      attempts++;
-      const opts = {
-        enableHighAccuracy: true,
-        timeout: attempts === 1 ? 15000 : 20000,
-        maximumAge: 0
-      };
-
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          const acc = pos.coords.accuracy || 999;
-          const la = pos.coords.latitude;
-          const ln = pos.coords.longitude;
-
-          if (acc < bestAcc) { bestAcc = acc; bestPos = pos; }
-
-          if (acc <= MAX_ACC_METERS) {
-            setStat(`✅ নিখুঁত লোকেশন (${Math.round(acc)}m)`, "#27ae60");
-            setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 3000);
-            onSuccess(la, ln, acc);
-          } else if (attempts < MAX_ATTEMPTS) {
-            setStat(`⏳ আরও নিখুঁত লোকেশন খোঁজা হচ্ছে... (${Math.round(acc)}m) — চেষ্টা ${attempts}/${MAX_ATTEMPTS}`, "#e67e22");
-            setTimeout(tryOnce, 800);
-          } else {
-            // best effort — use the most accurate we got
-            const fp = bestPos || pos;
-            const fa = bestPos ? bestAcc : acc;
-            setStat(`⚠️ সর্বোত্তম লোকেশন (${Math.round(fa)}m) — গ্রহণ করা হলো`, "#e67e22");
-            setTimeout(() => { if (statusEl) statusEl.style.display = 'none'; }, 4000);
-            onSuccess(fp.coords.latitude, fp.coords.longitude, fa);
-          }
-        },
-        err => {
-          if (attempts < MAX_ATTEMPTS) {
-            setStat(`⏳ GPS রিট্রাই... চেষ্টা ${attempts}/${MAX_ATTEMPTS}`, "#e67e22");
-            setTimeout(tryOnce, 1000);
-          } else {
-            setStat("", "#888");
-            let msg = "❌ GPS Error! ";
-            if (err.code === 1) msg = "❌ GPS অনুমতি দেওয়া হয়নি! ব্রাউজার সেটিংসে অনুমতি দিন।";
-            else if (err.code === 2) msg = "❌ লোকেশন পাওয়া যায়নি! খোলা আকাশের নিচে চেষ্টা করুন।";
-            else if (err.code === 3) msg = "❌ GPS টাইমআউট! আবার চেষ্টা করুন।";
-            onFail(msg);
-          }
-        },
-        opts
-      );
-    }
-
-    tryOnce();
-  }
-  // ─── Add-page inline bulk ─────────────────────────────────
-  function toggleAddBulk() {
-    const p = document.getElementById('add-bulk-panel');
-    p.style.display = p.style.display === 'none' ? 'block' : 'none';
-  }
-
-  function formatBaseSubscription(input) {
-    const digits = input.value.replace(/\D/g, '').slice(0, 5);
-    input.value = digits.length > 3 ? `${digits.slice(0, 3)}/${digits.slice(3)}` : digits;
-  }
-
-  function getBaseSubscriptionDigits(value) {
-    return value.replace(/\D/g, '').slice(0, 5);
-  }
-
-  function generateRangeAdd() {
-    const base    = document.getElementById('add-range-base').value.trim();
-    const baseDigits = getBaseSubscriptionDigits(base);
-    const fromVal = parseInt(document.getElementById('add-range-from').value, 10);
-    const toVal   = parseInt(document.getElementById('add-range-to').value, 10);
-    const pad     = document.getElementById('add-range-pad').checked;
-    const excRaw  = document.getElementById('add-range-exclude').value.trim();
-
-    if (baseDigits.length !== 5) { showToast("বেস সাবস্ক্রিপশন নাম্বারে ৫টি সংখ্যা দিন (যেমন 123/45)!"); return; }
-    if (isNaN(fromVal) || isNaN(toVal)) { showToast("কত থেকে ও কত পর্যন্ত দিন!"); return; }
-    if (toVal < fromVal) { showToast("শেষ নাম্বার শুরুর চেয়ে ছোট হতে পারে না!"); return; }
-
-    const exclude = new Set();
-    if (excRaw) {
-      excRaw.split(/[.\s,]+/).forEach(s => {
-        const n = parseInt(s.trim(), 10);
-        if (!isNaN(n)) exclude.add(n);
-      });
-    }
-
-    const prefix = baseDigits + '/';
-
-    const lines = [];
-    for (let i = fromVal; i <= toVal; i++) {
-      if (exclude.has(i)) continue;
-      const suffix = pad ? String(i).padStart(3, '0') : String(i);
-      lines.push(prefix + suffix);
-    }
-
-    const ta = document.getElementById('add-bulk-subs');
-    ta.value = lines.join('\n');
-    updateAddBulkPreview();
-    showToast(`✅ ${lines.length} টি নাম্বার জেনারেট হয়েছে`);
-  }
-
-  function parseAddBulkList() {
-    const raw = document.getElementById('add-bulk-subs').value;
-    const lines = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-    const items = [];
-    const seen = {};
-    for (const line of lines) {
-      let key = line;
-      if (/^[0-9/]+$/.test(line) && !line.includes('/')) {
-        const m = line.replace(/\D/g, '');
-        let f = '';
-        if (m.length > 0) f += m.substr(0, 3);
-        if (m.length > 3) f += '/' + m.substr(3, 2);
-        if (m.length > 5) f += '/' + m.substr(5, 3);
-        key = f || line;
-      }
-      const isDup = seen[key] || MEM.has(key);
-      seen[key] = true;
-      items.push({ key, isDup });
-    }
-    return items;
-  }
-
-  function updateAddBulkPreview() {
-    const items = parseAddBulkList();
-    document.getElementById('add-bulk-count').textContent = `${items.length} টি নাম্বার`;
-    const pv = document.getElementById('add-bulk-preview');
-    if (!items.length) { pv.style.display = 'none'; pv.innerHTML = ''; return; }
-    pv.style.display = 'block';
-    pv.innerHTML = items.map(it => `
-      <div class="bp-item">
-        <span class="bp-num">${it.key}</span>
-        <span class="${it.isDup ? 'bp-dup' : 'bp-new'}">${it.isDup ? '⚠️ আগে থেকে আছে' : '✨ নতুন'}</span>
-      </div>`).join('');
-  }
-
-  function getBulkGPSAdd() {
-    getHighAccuracyGPS((la, ln, acc) => {
-      document.getElementById('add-bulk-loc').value = `${la.toFixed(5)}, ${ln.toFixed(5)}`;
-      showToast(`📍 লোকেশন সেট (${Math.round(acc)}m)`);
-    }, (msg) => {
-      showToast(msg);
-    }, null);
-  }
-
-  async function bulkSaveAdd() {
-    if (myRole === 'Viewer') { showToast(t("toastViewerAdd")); return; }
-    const items = parseAddBulkList();
-    const loc = document.getElementById('add-bulk-loc').value.trim();
-    if (!items.length) { showToast("অন্তত একটি সাবস্ক্রিপশন নাম্বার লিখুন!"); return; }
-    if (!loc) { showToast(t("toastEmptyField")); return; }
-
-    const pw = document.getElementById('add-bulk-prog-wrap');
-    const pf = document.getElementById('add-bulk-prog-fill');
-    const pl = document.getElementById('add-bulk-prog-lbl');
-    pw.style.display = 'block';
-
-    const tot = items.length;
-    let done = 0, queued = 0, pushed = 0;
-    const online = navigator.onLine && !!GH_TOK;
-
-    for (const it of items) {
-      await iPut(SM, it.key, loc);
-      MEM.set(it.key, loc);
-      done++;
-      const pct = Math.round(done / tot * 100);
-      pf.style.width = pct + '%';
-      pl.textContent = `${pct}% (${done}/${tot})`;
-    }
-
-    if (online) {
-      const batch = items.map(it => ({key: it.key, val: loc}));
-      const okCount = await pushBatch(batch);
-      pushed = okCount;
-      if (pushed < items.length) {
-        for (const it of items) { await enqueue(it.key, loc); queued++; }
-      }
-    } else {
-      for (const it of items) { await enqueue(it.key, loc); queued++; }
-    }
-
-    const mk = {};
-    items.forEach(it => mk[it.key] = 1);
-    await iBulk(SL, mk, null);
-
-    pw.style.display = 'none';
-    refreshQBadge();
-    updateStats();
-
-    document.getElementById('add-bulk-subs').value = '';
-    document.getElementById('add-bulk-loc').value = '';
-    updateAddBulkPreview();
-
-    const msg = online
-      ? `✅ ${tot} টি সেভ হয়েছে (${pushed} আপলোড${queued ? ', ' + queued + ' কিউ' : ''})`
-      : `✅ ${tot} টি লোকালি সেভ হয়েছে (${queued} কিউ)`;
-    showToast(msg);
-  }
-
   async function saveEntry() {
+    if (bulkMode) { return saveBulkEntries(); }
     if (myRole==='Viewer') { showToast(t("toastViewerAdd")); return; }
     const sub = document.getElementById('f-sub').value.trim();
     const st  = document.getElementById('f-st').value.trim();
@@ -1509,145 +1262,6 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     updateStats();
   }
 
-  // ─── Bulk Add (একই লোকেশনে একাধিক সাবস্ক্রিপশন) ──────────────
-  function generateRange() {
-    const base    = document.getElementById('range-base').value.trim();
-    const baseDigits = getBaseSubscriptionDigits(base);
-    const fromVal = parseInt(document.getElementById('range-from').value, 10);
-    const toVal   = parseInt(document.getElementById('range-to').value, 10);
-    const pad     = document.getElementById('range-pad').checked;
-    const excRaw  = document.getElementById('range-exclude').value.trim();
-
-    if (baseDigits.length !== 5) { showToast("বেস সাবস্ক্রিপশন নাম্বারে ৫টি সংখ্যা দিন (যেমন 123/45)!"); return; }
-    if (isNaN(fromVal) || isNaN(toVal)) { showToast("কত থেকে ও কত পর্যন্ত দিন!"); return; }
-    if (toVal < fromVal) { showToast("শেষ নাম্বার শুরুর চেয়ে ছোট হতে পারে না!"); return; }
-
-    // ব্যতিক্রম নাম্বার সেট বানাও
-    const exclude = new Set();
-    if (excRaw) {
-      excRaw.split(/[.\s,]+/).forEach(s => {
-        const n = parseInt(s.trim(), 10);
-        if (!isNaN(n)) exclude.add(n);
-      });
-    }
-
-    // বেস এর শেষে / না থাকলে যোগ করো
-    const prefix = baseDigits + '/';
-
-    const lines = [];
-    for (let i = fromVal; i <= toVal; i++) {
-      if (exclude.has(i)) continue;
-      const suffix = pad ? String(i).padStart(3, '0') : String(i);
-      lines.push(prefix + suffix);
-    }
-
-    const ta = document.getElementById('bulk-subs');
-    ta.value = lines.join('\n');
-    updateBulkPreview();
-    showToast(`✅ ${lines.length} টি নাম্বার জেনারেট হয়েছে`);
-  }
-
-  function parseBulkList() {
-    const raw = document.getElementById('bulk-subs').value;
-    const lines = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-    const items = [];
-    const seen = {};
-    for (const line of lines) {
-      // সাবস্ক্রিপশন ফরম্যাট (xxx/xx/xxx) হলে সেটাই, নাহলে যেকোনো নাম্বার/টেক্সট
-      let key = line;
-      // সাবস্ক্রিপশন ফরম্যাট অটো-ফরম্যাট চেষ্টা (শুধু ডিজিট ও / থাকলে)
-      if (/^[0-9/]+$/.test(line) && !line.includes('/')) {
-        const m = line.replace(/\D/g,'');
-        let f = '';
-        if(m.length>0)f+=m.substr(0,3);
-        if(m.length>3)f+='/'+m.substr(3,2);
-        if(m.length>5)f+='/'+m.substr(5,3);
-        key = f || line;
-      }
-      const isDup = seen[key] || MEM.has(key);
-      seen[key] = true;
-      items.push({ key, isDup });
-    }
-    return items;
-  }
-
-  function updateBulkPreview() {
-    const items = parseBulkList();
-    document.getElementById('bulk-count').textContent = `${items.length} টি নাম্বার`;
-    const pv = document.getElementById('bulk-preview');
-    if (!items.length) { pv.style.display = 'none'; pv.innerHTML = ''; return; }
-    pv.style.display = 'block';
-    pv.innerHTML = items.map(it => `
-      <div class="bp-item">
-        <span class="bp-num">${it.key}</span>
-        <span class="${it.isDup ? 'bp-dup' : 'bp-new'}">${it.isDup ? '⚠️ আগে থেকে আছে' : '✨ নতুন'}</span>
-      </div>`).join('');
-  }
-
-  function getBulkGPS() {
-    if (!navigator.geolocation) { showToast("GPS সাপোর্ট নেই!"); return; }
-    navigator.geolocation.getCurrentPosition(p => {
-      document.getElementById('bulk-loc').value = `${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`;
-      showToast(t("toastGPSUpd"));
-    }, e => showToast("GPS Error: " + e.message), { enableHighAccuracy: true, timeout: 10000 });
-  }
-
-  async function bulkSave() {
-    if (myRole === 'Viewer') { showToast(t("toastViewerAdd")); return; }
-    const items = parseBulkList();
-    const loc = document.getElementById('bulk-loc').value.trim();
-    if (!items.length) { showToast("অন্তত একটি সাবস্ক্রিপশন নাম্বার লিখুন!"); return; }
-    if (!loc) { showToast(t("toastEmptyField")); return; }
-
-    const pw = document.getElementById('bulk-prog-wrap');
-    const pf = document.getElementById('bulk-prog-fill');
-    const pl = document.getElementById('bulk-prog-lbl');
-    pw.style.display = 'block';
-
-    const tot = items.length;
-    let done = 0, queued = 0, pushed = 0;
-    const online = navigator.onLine && !!GH_TOK;
-
-    for (const it of items) {
-      await iPut(SM, it.key, loc);
-      MEM.set(it.key, loc);
-      done++;
-      const pct = Math.round(done / tot * 100);
-      pf.style.width = pct + '%';
-      pl.textContent = `${pct}% (${done}/${tot})`;
-    }
-
-    if (online) {
-      const batch = items.map(it => ({key: it.key, val: loc}));
-      const okCount = await pushBatch(batch);
-      pushed = okCount;
-      if (pushed < items.length) {
-        for (const it of items) { await enqueue(it.key, loc); queued++; }
-      }
-    } else {
-      for (const it of items) { await enqueue(it.key, loc); queued++; }
-    }
-
-    // local import store এ চিহ্নিত করো
-    const mk = {};
-    items.forEach(it => mk[it.key] = 1);
-    await iBulk(SL, mk, null);
-
-    pw.style.display = 'none';
-    refreshQBadge();
-    updateStats();
-    loadTable();
-
-    document.getElementById('bulk-subs').value = '';
-    document.getElementById('bulk-loc').value = '';
-    updateBulkPreview();
-
-    const msg = online
-      ? `✅ ${tot} টি সেভ হয়েছে (${pushed} আপলোড${queued ? ', ' + queued + ' কিউ' : ''})`
-      : `✅ ${tot} টি লোকালি সেভ হয়েছে (${queued} কিউ)`;
-    showToast(msg);
-  }
-
   // ─── Import / Export ──────────────────────────────────────
   async function importFile(ev) {
     const file=ev.target.files[0]; if(!file) return;
@@ -1665,7 +1279,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
           XLSX.utils.sheet_to_json(ws,{header:1}).slice(1).forEach(r=>{
             if(r[0]&&r[1]) data[String(r[0]).trim()]=String(r[1]).trim();
           });
-        } else { showToast("ভুল ফরম্যাট!"); return; }
+        } else { showToast("Invalid format!"); return; }
         const tot=Object.keys(data).length;
         if(!tot){ showToast(t("toastNoData")); return; }
         const pw=document.getElementById('prog-wrap');
@@ -1724,7 +1338,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       const tr=document.createElement('tr');
       tr.innerHTML=`<td><strong style="font-family:'IBM Plex Mono',monospace;font-size:12px">${k}</strong></td>
         <td style="font-size:12px">${v}</td>
-        <td style="text-align:center"><button class="delbtn" onclick="deleteRec('${k.replace(/'/g,"\\'")}')">ডিলিট</button></td>`;
+        <td style="text-align:center"><button class="delbtn" onclick="deleteRec('${k.replace(/'/g,"\\'")}')">Delete</button></td>`;
       tb.appendChild(tr);
     }
   }
@@ -1739,7 +1353,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       tr.style.background='rgba(39,174,96,.08)';
       tr.innerHTML=`<td><strong style="font-family:'IBM Plex Mono',monospace;font-size:12px">${k}</strong></td>
         <td style="font-size:12px">${v}</td>
-        <td style="text-align:center"><button class="delbtn" onclick="deleteRec('${k.replace(/'/g,"\\'")}')">ডিলিট</button></td>`;
+        <td style="text-align:center"><button class="delbtn" onclick="deleteRec('${k.replace(/'/g,"\\'")}')">Delete</button></td>`;
       tb.appendChild(tr);
     }
   }
@@ -1769,81 +1383,36 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     const el=document.createElement('textarea'); el.value=t; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
     showToast(t("toastCopied"));
   }
-  async function shareLoc() {
-    const id = document.getElementById('res-id').textContent;
-    const lnk = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(curLoc);
-    const text = `সাবস্ক্রিপশন নং: ${id}\nলোকেশন: ${curLoc}\nম্যাপ: ${lnk}`;
-    const encText = encodeURIComponent(text);
-
-    const platforms = [
-      { name: 'WhatsApp',    icon: '💬', color: '#25D366', url: `https://wa.me/?text=${encText}` },
-      { name: 'WA Business', icon: '💼', color: '#25D366', waBusiness: true },
-      { name: 'Facebook',    icon: '📘', color: '#1877F2', url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(lnk)}&quote=${encText}` },
-      { name: 'Messenger',   icon: '💌', color: '#0084FF', url: `https://www.facebook.com/dialog/send?app_id=291735018317885&link=${encodeURIComponent(lnk)}&redirect_uri=${encodeURIComponent(lnk)}` },
-      { name: 'Telegram',    icon: '✈️', color: '#0088CC', url: `https://t.me/share/url?url=${encodeURIComponent(lnk)}&text=${encText}` },
-      { name: 'Twitter',     icon: '🐦', color: '#1DA1F2', url: `https://twitter.com/intent/tweet?text=${encText}` },
-      { name: 'SMS',         icon: '📱', color: '#34C759', url: `sms:?body=${encText}` },
-      { name: 'Email',       icon: '📧', color: '#FF6B35', url: `mailto:?subject=${encodeURIComponent('সাবস্ক্রিপশন নং: ' + id)}&body=${encText}` },
-      { name: 'Copy',        icon: '📋', color: '#6c757d', copy: true }
-    ];
-
-    const grid = document.getElementById('share-grid');
-    grid.innerHTML = '';
-    for (const p of platforms) {
-      const a = document.createElement('a');
-      a.className = 'share-item';
-      a.innerHTML = `<div class="share-icon" style="background:${p.color}">${p.icon}</div><div class="share-label">${p.name}</div>`;
-      if (p.waBusiness) {
-        a.onclick = async (e) => {
-          e.preventDefault();
-          const isAndroid = /Android/i.test(navigator.userAgent);
-          if (isAndroid) {
-            window.location.href = `intent://send/?text=${encText}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;end`;
-          } else if (navigator.share) {
-            try { await navigator.share({ title: 'Subscription Tracker', text: text }); } catch(err) {}
-            closeShareSheet();
-          } else {
-            window.open(`https://wa.me/?text=${encText}`, '_blank');
-          }
-        };
-      } else if (p.copy) {
-        a.onclick = async (e) => {
-          e.preventDefault();
-          try { await navigator.clipboard.writeText(text); }
-          catch { const el=document.createElement('textarea'); el.value=text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); }
-          showToast('📋 কপি হয়েছে');
-          closeShareSheet();
-        };
-      } else if (p.url) {
-        a.href = p.url;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-      }
-      grid.appendChild(a);
-    }
-
-    document.getElementById('share-overlay').style.display = 'flex';
-  }
-
-  function closeShareSheet(e) {
-    if (e && e.target && e.target.closest('.share-sheet')) return;
-    document.getElementById('share-overlay').style.display = 'none';
-  }
-
-  async function nativeShare() {
-    const id = document.getElementById('res-id').textContent;
-    const lnk = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(curLoc);
-    const text = `সাবস্ক্রিপশন নং: ${id}\nলোকেশন: ${curLoc}\nম্যাপ: ${lnk}`;
+  let shareCtx = { text:'', link:'' };
+  function shareLoc() {
+    const id  = document.getElementById('res-id').textContent;
+    const lnk = "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(curLoc);
+    const text = 'ID: '+id+' | Location: '+lnk;
+    shareCtx = { text, link: lnk };
     if (navigator.share) {
-      try {
-        await navigator.share({ title: 'Subscription Tracker', text: text, url: lnk });
-      } catch(err) { /* user cancelled */ }
+      navigator.share({ title: 'Subscription Location', text, url: lnk }).catch(()=>{});
     } else {
-      try { await navigator.clipboard.writeText(text); showToast('📋 কপি হয়েছে'); }
-      catch { const el=document.createElement('textarea'); el.value=text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); showToast('📋 কপি হয়েছে'); }
+      document.getElementById('share-overlay').style.display = 'flex';
     }
+  }
+  function shareVia(platform) {
+    const { text, link } = shareCtx;
+    const et = encodeURIComponent(text), el = encodeURIComponent(link);
+    let url = '';
+    switch (platform) {
+      case 'whatsapp': url = `https://wa.me/?text=${et}`; break;
+      case 'facebook':  url = `https://www.facebook.com/sharer/sharer.php?u=${el}&quote=${et}`; break;
+      case 'telegram':  url = `https://t.me/share/url?url=${el}&text=${et}`; break;
+      case 'twitter':   url = `https://twitter.com/intent/tweet?text=${et}`; break;
+      case 'linkedin':  url = `https://www.linkedin.com/sharing/share-offsite/?url=${el}`; break;
+      case 'email':     url = `mailto:?subject=${encodeURIComponent('Subscription Location')}&body=${et}`; break;
+      case 'sms':       url = `sms:?body=${et}`; break;
+      case 'copy':      copyLoc(); closeShareSheet(); return;
+    }
+    window.open(url, '_blank');
     closeShareSheet();
   }
+  function closeShareSheet() { document.getElementById('share-overlay').style.display = 'none'; }
 
   // ─── Nearby Map ───────────────────────────────────────────
   let nearbyMap    = null;
@@ -1859,7 +1428,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
         maxZoom: 19
       }).addTo(nearbyMap);
       nearbyLayers = L.layerGroup().addTo(nearbyMap);
-      // Attribution ছোট করো
+      // Shrink attribution
       L.control.attribution({ prefix: '© OSM' }).addTo(nearbyMap);
     } else {
       nearbyMap.setView([lat, lng], 15);
@@ -1882,7 +1451,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     const m = locStr.match(/(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)/);
     if (!m) return null;
     const la = parseFloat(m[1]), ln = parseFloat(m[2]);
-    // বৈধ range চেক
+    // Validate range
     if (la < -90 || la > 90 || ln < -180 || ln > 180) return null;
     return { lat: la, lng: ln };
   }
@@ -1902,10 +1471,10 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   function loadNearbyPins(lat, lng, radiusM) {
     nearbyLayers.clearLayers();
 
-    // আমার লোকেশন মার্কার
+    // My location marker
     if (myLocMarker) nearbyLayers.removeLayer(myLocMarker);
     myLocMarker = L.marker([lat, lng], { icon: makePinIcon('', true), zIndexOffset: 1000 })
-      .bindPopup('<div class="pin-popup">📍 আপনার অবস্থান</div>', { maxWidth: 180 })
+      .bindPopup('<div class="pin-popup">📍 Your Location</div>', { maxWidth: 180 })
       .addTo(nearbyLayers);
 
     // radius circle
@@ -1918,7 +1487,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       dashArray: '5,5'
     }).addTo(nearbyLayers);
 
-    // MEM থেকে coordinates parse করে nearby filter
+    // Parse coordinates from MEM to filter nearby
     let found = 0;
     const nearby = [];
 
@@ -1931,7 +1500,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       }
     }
 
-    // দূরত্ব অনুযায়ী sort
+    // Sort by distance
     nearby.sort((a, b) => a.dist - b.dist);
 
     nearby.forEach(({ key, locStr, coords, dist }) => {
@@ -1946,11 +1515,11 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
           <div class="pin-popup">
             ${key}
             <div class="pl">📍 ${locStr}</div>
-            <div class="pl">📏 ${distTx} দূরে</div>
+            <div class="pl">📏 ${distTx} away</div>
             <div style="margin-top:6px">
               <a href="https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}"
                  target="_blank"
-                 style="color:#2b579a;font-size:11px;font-weight:700">🗺️ Google Maps এ দেখুন</a>
+                 style="color:#2b579a;font-size:11px;font-weight:700">🗺️ View on Google Maps</a>
             </div>
           </div>`, { maxWidth: 200 })
         .addTo(nearbyLayers);
@@ -1965,7 +1534,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       cEl.innerHTML = `✅ ${found} ${t('nearbyFound')}`;
     }
 
-    // সব marker দেখা যাচ্ছে কিনা নিশ্চিত করো
+    // Make sure all markers are visible
     if (nearby.length > 0) {
       const bounds = L.latLngBounds([[lat, lng], ...nearby.map(n => [n.coords.lat, n.coords.lng])]);
       nearbyMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 17 });
@@ -1976,24 +1545,30 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     const cEl = document.getElementById('nearby-count');
     cEl.innerHTML = t('nearbyLoading');
 
-    getHighAccuracyGPS(
-      (la, ln, acc) => {
-        myLat = la;
-        myLng = ln;
+    if (!navigator.geolocation) {
+      cEl.innerHTML = '❌ GPS not supported in this browser';
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        myLat = pos.coords.latitude;
+        myLng = pos.coords.longitude;
         initNearbyMap(myLat, myLng);
         const radius = parseInt(document.getElementById('radius-sel').value);
         loadNearbyPins(myLat, myLng, radius);
+        // Fix map resize
         setTimeout(() => nearbyMap && nearbyMap.invalidateSize(), 300);
       },
-      (msg) => {
-        cEl.innerHTML = msg;
+      err => {
+        cEl.innerHTML = `❌ GPS Error: ${err.message}`;
       },
-      null
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
     );
   }
 
   function refreshNearbyMap() {
-    if (myLat === null) return; // এখনো locate করা হয়নি
+    if (myLat === null) return; // Not located yet
     const radius = parseInt(document.getElementById('radius-sel').value);
     loadNearbyPins(myLat, myLng, radius);
   }
@@ -2145,6 +1720,23 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     confirmDelete:  "Delete this record?",
     confirmClear:   "Clear all data?",
     pwStrLevels:    ["Very Weak","Weak","Fair","Strong","Very Strong"],
+    shareSheetTitle:"Choose how to share",
+    shareSheetClose:"Cancel",
+    lblBulkPrefix:  "Subscription Prefix",
+    bulkPrefixHint: "The (/) is added automatically after 3 digits — e.g. 123/45",
+    lblBulkStart:   "Start (last 3 digits)",
+    lblBulkEnd:     "End (last 3 digits)",
+    bulkRangeHint:  "All numbers from start to end will be created (same location)",
+    lblBulkExtra:   "Extra scattered numbers (optional)",
+    bulkExtraHint:  "Separate each number with a full stop (.)",
+    bulkErrPrefix:  "❌ Enter the full prefix (xxx/xx)",
+    bulkErrRangeBoth:"❌ Fill in both range boxes",
+    bulkErrRangeOrder:"❌ Enter a valid range (start ≤ end)",
+    bulkErrTooMany: "❌ You can add a maximum of 1000 numbers at once",
+    bulkErrExtra:   "❌ Extra numbers are invalid",
+    bulkErrEmpty:   "❌ Enter at least one number or range",
+    bulkPreviewUnit:"number(s) will be created",
+    bulkSavedUnit:  "number(s) saved & uploaded!",
   };
 
   function t(key) { return T[key] || key; }
@@ -2159,8 +1751,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     document.getElementById('n-set').textContent    = t('navSettings');
     // ── Cloud bar ──
     const cl = document.getElementById('cloud-lbl');
-    if (cl.textContent.includes('রেডি') || cl.textContent.includes('Ready') || cl.textContent.includes('جاهزة'))
-      cl.textContent = t('cloudReady');
+    if (cl) cl.textContent = t('cloudReady');
     // ── Search screen ──
     setTx('lbl-search-sub',  t('lblSub'));
     setTx('lbl-search-st',   t('lblStation'));
@@ -2178,8 +1769,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     setTx('nearby-title',    t('nearbyTitle'));
     setTx('btn-locate',      t('btnLocate'));
     const nc = document.getElementById('nearby-count');
-    if (nc && (nc.textContent.includes('লোকেট') || nc.textContent.includes('Locate') || nc.textContent.includes('تحديد')))
-      nc.textContent = t('nearbyInit');
+    if (nc) nc.textContent = t('nearbyInit');
     // ── Add screen ──
     setTx('add-title',       t('addTitle'));
     setTx('lbl-sub-f',       t('lblSubField'));
@@ -2193,6 +1783,15 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     setTx('lbl-pick-map',    t('lblPickMap'));
     const vb = document.getElementById('vblock');
     if (vb) vb.textContent = t('viewerBlock');
+    setTx('lbl-bulk-prefix',  t('lblBulkPrefix'));
+    setTx('bulk-hint-prefix', t('bulkPrefixHint'));
+    setTx('lbl-bulk-start',   t('lblBulkStart'));
+    setTx('lbl-bulk-end',     t('lblBulkEnd'));
+    setTx('bulk-hint-range',  t('bulkRangeHint'));
+    setTx('lbl-bulk-extra',   t('lblBulkExtra'));
+    setTx('bulk-hint-extra',  t('bulkExtraHint'));
+    setTx('share-sheet-title',t('shareSheetTitle'));
+    setTx('share-sheet-close',t('shareSheetClose'));
     // ── Auth screen ──
     setTx('auth-title',      t('authTitle'));
     setTx('auth-step1-hint', t('authStep1Hint'));
@@ -2242,124 +1841,6 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 
   function setTx(id, text)          { const e=document.getElementById(id); if(e) e.textContent=text; }
   function setAttr(id, attr, val)   { const e=document.getElementById(id); if(e) e.setAttribute(attr,val); }
-
-  // ─── PWA Install System ───────────────────────────────────
-  let deferredPrompt = null;
-
-  // Runtime manifest (single-file PWA — no separate manifest.json needed)
-  (function generateManifest() {
-    const icon = 'data:image/svg+xml,' + encodeURIComponent(
-      '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512">' +
-      '<rect width="512" height="512" rx="96" fill="#2b579a"/>' +
-      '<text x="256" y="340" font-size="240" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="bold">S</text>' +
-      '</svg>'
-    );
-    const manifest = {
-      name: "Subscription Tracker Pro",
-      short_name: "SubTracker",
-      description: "Subscription location tracker",
-      start_url: ".",
-      display: "standalone",
-      background_color: "#f4f6f9",
-      theme_color: "#2b579a",
-      orientation: "portrait",
-      icons: [
-        { src: icon, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
-      ]
-    };
-    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-    const link = document.createElement('link');
-    link.rel = 'manifest';
-    link.href = URL.createObjectURL(blob);
-    document.head.appendChild(link);
-
-    // Apple touch icon
-    const appleIcon = document.createElement('link');
-    appleIcon.rel = 'apple-touch-icon';
-    appleIcon.href = icon;
-    document.head.appendChild(appleIcon);
-
-    // Favicon
-    const fav = document.createElement('link');
-    fav.rel = 'icon';
-    fav.href = icon;
-    document.head.appendChild(fav);
-  })();
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    showInstallBadge();
-  });
-
-  window.addEventListener('appinstalled', () => {
-    deferredPrompt = null;
-    hideInstallBadge();
-    closeInstallPopup();
-    lss('installDismissed', 'installed');
-    showToast('✅ অ্যাপ ইনস্টল হয়েছে!');
-  });
-
-  function showInstallBadge() {
-    const badge = document.getElementById('install-badge');
-    if (badge) { badge.classList.add('show', 'pulse'); }
-  }
-  function hideInstallBadge() {
-    const badge = document.getElementById('install-badge');
-    if (badge) { badge.classList.remove('show', 'pulse'); }
-  }
-
-  function showInstallPopup() {
-    document.getElementById('install-overlay').style.display = 'flex';
-  }
-  function closeInstallPopup() {
-    document.getElementById('install-overlay').style.display = 'none';
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('install-now-btn').addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        if (outcome === 'accepted') {
-          hideInstallBadge();
-          closeInstallPopup();
-          lss('installDismissed', 'installed');
-        } else {
-          closeInstallPopup();
-          lss('installDismissed', 'dismissed-' + Date.now());
-        }
-      } else {
-        // Browser doesn't support beforeinstallprompt (e.g. iOS Safari)
-        closeInstallPopup();
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        if (isIOS) {
-          showToast('📱 Safari এর Share বাটন চাপুন → "Add to Home Screen" নির্বাচন করুন');
-        } else {
-          showToast('📱 ব্রাউজার মেনু ⋮ থেকে "Install app" বা "Add to Home screen" নির্বাচন করুন');
-        }
-      }
-    });
-
-    document.getElementById('install-later-btn').addEventListener('click', () => {
-      closeInstallPopup();
-      lss('installDismissed', 'dismissed-' + Date.now());
-    });
-
-    // Show popup on first visit (if not previously dismissed)
-    const status = ls('installDismissed');
-    if (!status) {
-      setTimeout(() => {
-        if (!deferredPrompt) {
-          // No beforeinstallprompt yet — show popup after 2.5s
-          showInstallPopup();
-        } else {
-          showInstallPopup();
-        }
-      }, 2500);
-    }
-  });
 </script>
 </body>
 </html>
