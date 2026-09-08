@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Subscription Tracker Pro v4</title>
+
+<!-- ══ PWA ══ -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2b579a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SubTracker">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"/>
@@ -151,6 +161,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 <header>
   <h1 id="app-title">Subscription Tracker Pro</h1>
   <div class="hc">
+    <button id="btn-install-app" class="ib" style="display:none" onclick="installApp()" title="Install App">📲</button>
     <button class="ib" onclick="toggleTheme()">🌙</button>
   </div>
 </header>
@@ -259,6 +270,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
         <div class="ig"><label id="lbl-loc-f">Location / Address</label>
           <input type="text" id="f-loc" placeholder="Address or coordinates"></div>
         <button id="btn-gps" class="btn btn-out" onclick="getGPS()">📍 Use Current Location</button>
+        <div id="gps-status" style="display:none;font-size:11px;color:var(--pc);text-align:center;margin-top:6px;line-height:1.5"></div>
         <button id="btn-save-entry" class="btn" style="margin-top:14px" onclick="saveEntry()">💾 Save & Upload</button>
         <div class="ig" style="margin-top:14px">
           <label id="lbl-pick-map" style="font-size:12px;font-weight:700;color:var(--pc)">🗺️ Set Pin on Map:</label>
@@ -600,8 +612,28 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     try {
       const r = await fetch(`https://raw.githubusercontent.com/${GH_REPO}/main/meta.json?t=${Date.now()}`);
       if (r.ok) return await r.json();
-    } catch(e){}
-    return {totalRecords:0, totalChunks:0};
+      if (r.status === 404) return {totalRecords:0, totalChunks:0};
+      throw new Error('meta fetch failed: '+r.status);
+    } catch(e){ throw e; }
+  }
+  // Authoritative chunk-file listing straight from the GitHub API (not CDN-cached
+  // like raw.githubusercontent.com), so sync never has to trust a possibly stale
+  // or corrupted meta.json for how many chunks actually exist.
+  async function ghListChunks() {
+    try {
+      const r = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/chunks?t=${Date.now()}`, {
+        headers: GH_TOK ? {"Authorization":`token ${GH_TOK}`} : {}
+      });
+      if (r.status === 404) return [];
+      if (!r.ok) return null;
+      const arr = await r.json();
+      if (!Array.isArray(arr)) return null;
+      const idxs = arr
+        .map(f => { const m = /^chunk_(\d+)\.json$/.exec(f.name); return m ? parseInt(m[1],10) : null; })
+        .filter(n => n !== null)
+        .sort((a,b) => a-b);
+      return idxs;
+    } catch(e){ return null; }
   }
   async function ghChunk(i) {
     try {
@@ -613,17 +645,41 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   async function pushOne(key, val) {
     if (!GH_TOK) return false;
     try {
-      const meta  = await ghMeta();
-      const tot   = (meta.totalRecords||0)+1;
-      const ci    = Math.floor((tot-1)/CHUNK);
-      const chunk = await ghChunk(ci)||{};
-      chunk[key]  = val;
-      const ok    = await ghPush(`chunks/chunk_${ci}.json`, JSON.stringify(chunk), `Add ${key}`);
+      let meta;
+      try { meta = await ghMeta(); }
+      catch(e) { return false; } // don't guess — a failed meta read must never corrupt totalChunks
+
+      const idxs = await ghListChunks();       // authoritative chunk indices, e.g. [0,1,...,104]
+      let ci, chunk, isNewKey;
+      if (idxs && idxs.length) {
+        const lastIdx = idxs[idxs.length-1];
+        const lastChunk = await ghChunk(lastIdx) || {};
+        if (Object.keys(lastChunk).length >= CHUNK && !(key in lastChunk)) {
+          ci = lastIdx + 1; chunk = {};
+        } else {
+          ci = lastIdx; chunk = lastChunk;
+        }
+      } else if (idxs && idxs.length === 0) {
+        ci = 0; chunk = {};
+      } else {
+        // Chunk listing API failed too (e.g. rate-limited) — fall back to meta,
+        // but only ever grow totalChunks, never shrink it.
+        const tot = (meta.totalRecords||0)+1;
+        ci    = Math.floor((tot-1)/CHUNK);
+        chunk = await ghChunk(ci) || {};
+      }
+      isNewKey = !(key in chunk);
+      chunk[key] = val;
+
+      const ok = await ghPush(`chunks/chunk_${ci}.json`, JSON.stringify(chunk), `Add ${key}`);
       if (!ok) return false;
+
+      const newTotalChunks = Math.max(meta.totalChunks||1, ci+1, idxs ? idxs.length : 0);
+      const newTotalRecords = (meta.totalRecords||0) + (isNewKey ? 1 : 0);
       await ghPush('meta.json', JSON.stringify({
-        totalRecords:tot,
-        totalChunks:Math.max(meta.totalChunks||1, ci+1),
-        lastUpdated:new Date().toISOString()
+        totalRecords: newTotalRecords,
+        totalChunks:  newTotalChunks,
+        lastUpdated:  new Date().toISOString()
       }), 'Update meta');
       return true;
     } catch(e){ return false; }
@@ -634,16 +690,24 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     showToast(t("toastSyncing"));
     try {
       const meta = await ghMeta();
-      const tc   = meta.totalChunks||0;
+      // Trust the actual list of chunk files on GitHub over meta.json's cached
+      // count — meta.json can end up stale/wrong (e.g. after a failed or
+      // CDN-cached read during a previous push), which used to make sync stop
+      // after far fewer chunks than actually exist.
+      const idxs = await ghListChunks();
+      const chunkIdxs = (idxs && idxs.length) ? idxs
+                       : Array.from({length: meta.totalChunks||0}, (_,i)=>i);
+      const tc = chunkIdxs.length;
       let imp = 0;
-      for (let i=0; i<tc; i++) {
+      for (let n=0; n<tc; n++) {
+        const i  = chunkIdxs[n];
         const ch = await ghChunk(i);
         if (ch) {
           await iBulk(SM, ch, null);
           Object.keys(ch).forEach(k=>MEM.set(k,ch[k]));
           imp += Object.keys(ch).length;
         }
-        el.textContent = `⏳ ${i+1}/${tc} chunks…`;
+        el.textContent = `⏳ ${n+1}/${tc} chunks…`;
       }
       // flush queue
       const q = await getQueue();
@@ -656,7 +720,17 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       updateStats();
       el.textContent = `✅ ${imp.toLocaleString()} ${t("toastSyncDone")}`;
       showToast(t("toastSyncDone"));
-      refreshChunkInfo(meta);
+
+      // Self-heal meta.json if it disagreed with the real chunk count
+      const freshMeta = await ghMeta().catch(()=>meta);
+      if (idxs && idxs.length && (freshMeta.totalChunks !== tc || (freshMeta.totalRecords||0) !== imp)) {
+        await ghPush('meta.json', JSON.stringify({
+          totalRecords: imp,
+          totalChunks:  tc,
+          lastUpdated:  new Date().toISOString()
+        }), 'Repair meta (chunk count self-heal)');
+      }
+      refreshChunkInfo();
     } catch(e) {
       el.textContent = t("toastCloudFail");
       showToast(t("toastSyncFail"));
@@ -669,7 +743,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     else b.style.display='none';
   }
   async function refreshChunkInfo(meta) {
-    if (!meta) meta = await ghMeta();
+    if (!meta) { try { meta = await ghMeta(); } catch(e) { meta = {totalRecords:0, totalChunks:0}; } }
     document.getElementById('chunk-info').textContent = meta.totalChunks
       ? `GitHub: ${meta.totalChunks} chunks | ${(meta.totalRecords||0).toLocaleString()} records | ${meta.lastUpdated ? new Date(meta.lastUpdated).toLocaleString() : ''}`
       : 'GitHub: meta.json not found';
@@ -776,6 +850,33 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     });
     setInterval(touchActive, 30000);
   };
+
+  // ─── PWA: install prompt + service worker ──────────────────
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    const btn = document.getElementById('btn-install-app');
+    if (btn) btn.style.display = 'flex';
+  });
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    const btn = document.getElementById('btn-install-app');
+    if (btn) btn.style.display = 'none';
+    showToast('✅ App installed!');
+  });
+  async function installApp() {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    document.getElementById('btn-install-app').style.display = 'none';
+  }
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    });
+  }
 
   // ─── Navigation ───────────────────────────────────────────
   function go(sid, nid) {
@@ -1225,14 +1326,113 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       picker.on('click',e=>{ pickerM.setLatLng(e.latlng); setLocField(e.latlng.lat,e.latlng.lng); });
     } else picker.invalidateSize();
   }
-  function setLocField(la,ln){ document.getElementById('f-loc').value=`${la.toFixed(5)}, ${ln.toFixed(5)}`; }
+  function setLocField(la,ln){ document.getElementById('f-loc').value=`${la.toFixed(6)}, ${ln.toFixed(6)}`; }
+
+  // ─── High-Accuracy GPS Collection ───────────────────────────
+  // Strategy: keep sampling with watchPosition (never a single noisy fix)
+  // and only lock in once we're confident in the reading:
+  //  - HARD target (≤10m): accept immediately.
+  //  - SOFT target (≤15m): accept, but wait a short grace period in case
+  //    a better (HARD-level) fix arrives; otherwise use the soft fix.
+  //  - Otherwise keep refining until MAX_DURATION, then use the best found.
+  let gpsWatchId    = null;
+  let gpsBest       = null;
+  let gpsSamples    = 0;
+  let gpsStartTime  = 0;
+  let gpsGraceTimer = null;
+  let gpsAccCircle  = null;
+  const GPS_HARD_ACCURACY = 10;    // stop immediately once this good (meters)
+  const GPS_SOFT_ACCURACY = 15;    // acceptable — wait briefly for improvement
+  const GPS_GRACE_MS      = 6000;  // grace window after hitting soft target
+  const GPS_MAX_DURATION  = 30000; // hard cutoff — use best reading found
+
+  function gpsStatusText(msg) {
+    const s = document.getElementById('gps-status');
+    if (!s) return;
+    s.style.display = 'block';
+    s.textContent = msg;
+  }
+
   function getGPS() {
     if (!navigator.geolocation) { showToast("GPS not supported!"); return; }
-    navigator.geolocation.getCurrentPosition(p=>{
-      setLocField(p.coords.latitude, p.coords.longitude);
-      if(picker&&pickerM){ pickerM.setLatLng([p.coords.latitude,p.coords.longitude]); picker.setView([p.coords.latitude,p.coords.longitude],15); }
-      showToast(t("toastGPSUpd"));
-    }, e=>showToast("GPS Error: "+e.message),{enableHighAccuracy:true,timeout:10000});
+
+    // Tapped again while refining → accept the best reading found so far
+    if (gpsWatchId !== null) { finishGPS('manual'); return; }
+
+    const btn = document.getElementById('btn-gps');
+    btn.dataset.orig = btn.textContent;
+    btn.textContent  = '📡 Locating… (tap to stop)';
+    gpsBest      = null;
+    gpsSamples   = 0;
+    gpsStartTime = Date.now();
+    if (gpsGraceTimer) { clearTimeout(gpsGraceTimer); gpsGraceTimer = null; }
+    gpsStatusText('📡 Acquiring GPS fix — please stay still for best results…');
+
+    gpsWatchId = navigator.geolocation.watchPosition(
+      p => {
+        const { latitude, longitude, accuracy } = p.coords;
+        gpsSamples++;
+        if (!gpsBest || accuracy < gpsBest.accuracy) {
+          gpsBest = { latitude, longitude, accuracy };
+          setLocField(latitude, longitude);
+          if (picker && pickerM) {
+            pickerM.setLatLng([latitude, longitude]);
+            picker.setView([latitude, longitude], 18);
+            if (!gpsAccCircle) {
+              gpsAccCircle = L.circle([latitude, longitude], { radius: accuracy, color:'#2b579a', fillColor:'#2b579a', fillOpacity:0.12, weight:1 }).addTo(picker);
+            } else {
+              gpsAccCircle.setLatLng([latitude, longitude]).setRadius(accuracy);
+            }
+          }
+        }
+        const elapsed = Math.round((Date.now()-gpsStartTime)/1000);
+        const acc = Math.round(gpsBest.accuracy);
+        btn.textContent = `📡 Refining… ±${acc}m (tap to stop)`;
+        gpsStatusText(`📡 Sample ${gpsSamples} — best accuracy ±${acc}m — ${elapsed}s elapsed`);
+
+        if (gpsBest.accuracy <= GPS_HARD_ACCURACY) {
+          finishGPS('accurate');
+        } else if (gpsBest.accuracy <= GPS_SOFT_ACCURACY) {
+          // Good enough — give it a short grace window in case it gets even better
+          if (!gpsGraceTimer) {
+            gpsGraceTimer = setTimeout(() => finishGPS('good'), GPS_GRACE_MS);
+          }
+        } else if (Date.now() - gpsStartTime > GPS_MAX_DURATION) {
+          finishGPS('timeout');
+        }
+      },
+      e => {
+        const msg = e.code === 1 ? "❌ Location permission denied — please allow location access."
+                  : e.code === 2 ? "❌ Location unavailable — check your GPS/network connection."
+                  : "❌ GPS error: " + e.message;
+        showToast(msg);
+        finishGPS('error');
+      },
+      { enableHighAccuracy: true, timeout: GPS_MAX_DURATION, maximumAge: 0 }
+    );
+
+    // Hard safety stop in case watchPosition keeps firing without ever meeting the timeout branch above
+    setTimeout(() => { if (gpsWatchId !== null) finishGPS('timeout'); }, GPS_MAX_DURATION + 2000);
+  }
+
+  function finishGPS(reason) {
+    if (gpsWatchId !== null) { navigator.geolocation.clearWatch(gpsWatchId); gpsWatchId = null; }
+    if (gpsGraceTimer) { clearTimeout(gpsGraceTimer); gpsGraceTimer = null; }
+    const btn = document.getElementById('btn-gps');
+    if (btn.dataset.orig) { btn.textContent = btn.dataset.orig; delete btn.dataset.orig; }
+    if (gpsBest) {
+      setLocField(gpsBest.latitude, gpsBest.longitude);
+      const acc = Math.round(gpsBest.accuracy);
+      if (reason === 'accurate')      { showToast(`📍 Location locked — ±${acc}m accuracy`); gpsStatusText(`✅ Locked with ±${acc}m accuracy (${gpsSamples} samples)`); }
+      else if (reason === 'good')     { showToast(`📍 Location set — ±${acc}m accuracy`); gpsStatusText(`✅ Set with ±${acc}m accuracy (${gpsSamples} samples)`); }
+      else if (reason === 'manual')   { showToast(`📍 Location set — ±${acc}m accuracy`); gpsStatusText(`📍 Stopped manually — ±${acc}m accuracy (${gpsSamples} samples)`); }
+      else if (reason === 'timeout')  { showToast(`📍 Best available — ±${acc}m accuracy`); gpsStatusText(`⚠️ Best available after ${Math.round(GPS_MAX_DURATION/1000)}s — ±${acc}m accuracy (try again outdoors for better precision)`); }
+    } else if (reason !== 'error') {
+      showToast("❌ Could not get GPS location!");
+      gpsStatusText('❌ Could not get a GPS fix. Try again with a clear view of the sky.');
+    } else {
+      gpsStatusText('❌ GPS failed — see message above.');
+    }
   }
   async function saveEntry() {
     if (bulkMode) { return saveBulkEntries(); }
