@@ -146,6 +146,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 .bulk-hint{font-size:11px;color:#888;margin-top:4px}
 .bulk-preview{font-size:12px;font-weight:700;color:var(--pc);text-align:center;margin-top:8px;min-height:16px}
 .bulk-preview-box{max-height:180px;overflow-y:auto;border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-top:6px;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.6;white-space:pre-line;background:var(--bg);color:var(--tx)}
+.btn-out.on{background:var(--pc);color:#fff}
 </style>
 </head>
 <body>
@@ -254,11 +255,45 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
             </div>
           </div>
           <div class="bulk-hint" id="bulk-hint-range">All numbers from start to end will be created (same location)</div>
-          <div class="ig" style="margin-top:12px">
+          <div class="ig" id="bulk-extra-group" style="margin-top:12px">
             <label id="lbl-bulk-extra">Extra scattered numbers (optional)</label>
             <input type="text" id="b-extra" class="mono" placeholder="e.g. 5.12.99" inputmode="numeric" oninput="sanitizeExtra(this)">
             <div class="bulk-hint" id="bulk-hint-extra">Separate each number with a full stop (.)</div>
           </div>
+
+          <!-- ══ DISTANCE MODE TOGGLE ══ -->
+          <div class="ig" style="display:flex;align-items:center;gap:8px;margin-top:14px">
+            <input type="checkbox" id="b-dist-toggle" onchange="toggleDistanceMode()" style="width:18px;height:18px;flex-shrink:0">
+            <label for="b-dist-toggle" style="font-size:13px;font-weight:700;margin:0;color:var(--pc)">📏 Distance-based auto location (spread numbers evenly along a straight line)</label>
+          </div>
+
+          <div id="dist-mode-panel" style="display:none;margin-top:8px">
+            <div class="bulk-hint">Numbers are placed in ascending order, evenly spaced on a straight line from Start to End. Best for a straight stretch of road — for a curved road, repeat this for each straight segment.</div>
+
+            <div style="margin-top:12px">
+              <label style="font-size:12px;font-weight:700">🟢 Start Location</label>
+              <input type="text" id="b-start-loc" placeholder="lat, lng" readonly>
+              <div style="display:flex;gap:8px;margin-top:6px">
+                <button type="button" class="btn btn-out" style="margin:0;padding:9px;font-size:12px" onclick="gpsForDistPoint('start')">📍 GPS</button>
+                <button type="button" class="btn btn-out" id="btn-tap-start" style="margin:0;padding:9px;font-size:12px" onclick="armMapTap('start')">🗺️ Tap Map</button>
+              </div>
+              <div id="dist-start-status" style="display:none;font-size:11px;color:var(--pc);margin-top:4px"></div>
+            </div>
+
+            <div style="margin-top:12px">
+              <label style="font-size:12px;font-weight:700">🔴 End Location</label>
+              <input type="text" id="b-end-loc" placeholder="lat, lng" readonly>
+              <div style="display:flex;gap:8px;margin-top:6px">
+                <button type="button" class="btn btn-out" style="margin:0;padding:9px;font-size:12px" onclick="gpsForDistPoint('end')">📍 GPS</button>
+                <button type="button" class="btn btn-out" id="btn-tap-end" style="margin:0;padding:9px;font-size:12px" onclick="armMapTap('end')">🗺️ Tap Map</button>
+              </div>
+              <div id="dist-end-status" style="display:none;font-size:11px;color:var(--pc);margin-top:4px"></div>
+            </div>
+
+            <div id="dist-map" class="map-pick" style="margin-top:12px"></div>
+            <div class="bulk-preview" id="dist-summary"></div>
+          </div>
+
           <div class="bulk-preview" id="bulk-preview"></div>
           <div class="bulk-preview-box" id="bulk-preview-list" style="display:none"></div>
           <div class="prog-wrap" id="bulk-prog-wrap">
@@ -267,12 +302,14 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
           </div>
         </div>
 
-        <div class="ig"><label id="lbl-loc-f">Location / Address</label>
-          <input type="text" id="f-loc" placeholder="Address or coordinates"></div>
-        <button id="btn-gps" class="btn btn-out" onclick="getGPS()">📍 Use Current Location</button>
-        <div id="gps-status" style="display:none;font-size:11px;color:var(--pc);text-align:center;margin-top:6px;line-height:1.5"></div>
+        <div id="common-loc-group">
+          <div class="ig"><label id="lbl-loc-f">Location / Address</label>
+            <input type="text" id="f-loc" placeholder="Address or coordinates"></div>
+          <button id="btn-gps" class="btn btn-out" onclick="getGPS()">📍 Use Current Location</button>
+          <div id="gps-status" style="display:none;font-size:11px;color:var(--pc);text-align:center;margin-top:6px;line-height:1.5"></div>
+        </div>
         <button id="btn-save-entry" class="btn" style="margin-top:14px" onclick="saveEntry()">💾 Save & Upload</button>
-        <div class="ig" style="margin-top:14px">
+        <div class="ig" id="map-pick-group" style="margin-top:14px">
           <label id="lbl-pick-map" style="font-size:12px;font-weight:700;color:var(--pc)">🗺️ Set Pin on Map:</label>
           <div id="pick-map" class="map-pick"></div>
         </div>
@@ -327,6 +364,10 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       <div class="sbox" id="stat-main">📊 Total Records: 0</div>
       <div class="sbox sbox2" id="stat-local">📱 Local Import: 0</div>
       <div class="chunk-info" id="chunk-info">GitHub: Loading...</div>
+
+      <!-- ══ SYNC STATUS CHECK ══ -->
+      <button id="btn-check-sync" class="btn btn-out" style="border-color:#8e44ad;color:#8e44ad;margin-bottom:10px" onclick="checkSyncStatus()">🔍 Check GitHub Sync Status</button>
+      <div id="sync-status-report" style="display:none;margin-bottom:14px;background:rgba(0,0,0,.04);border:1px solid var(--bd);border-radius:8px;padding:12px;font-size:13px;line-height:1.9"></div>
 
       <!-- GitHub Config -->
       <div style="background:rgba(0,0,0,.04);padding:12px;border-radius:8px;border:1px solid var(--bd);margin-bottom:14px">
@@ -442,7 +483,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   const SLIM     = 10;
   const TPAGE    = 150;
   const DBN      = "SubTracker_v4";
-  const SM = "main"; const SL = "local"; const SQ = "queue";
+  const SM = "main"; const SL = "local"; const SQ = "queue"; const SC = "chunkmap";
 
   // ─── State ───────────────────────────────────────────────
   let GH_REPO  = ls('ghRepo')  || "";
@@ -468,12 +509,13 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   // ─── IndexedDB ───────────────────────────────────────────
   function openDB() {
     return new Promise((res,rej) => {
-      const r = indexedDB.open(DBN, 1);
+      const r = indexedDB.open(DBN, 2);
       r.onupgradeneeded = e => {
         const d = e.target.result;
         if (!d.objectStoreNames.contains(SM)) d.createObjectStore(SM);
         if (!d.objectStoreNames.contains(SL)) d.createObjectStore(SL);
         if (!d.objectStoreNames.contains(SQ)) d.createObjectStore(SQ,{autoIncrement:true});
+        if (!d.objectStoreNames.contains(SC)) d.createObjectStore(SC);
       };
       r.onsuccess = e => { db = e.target.result; res(db); };
       r.onerror   = () => rej("IDB Error");
@@ -589,16 +631,30 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   }
 
   // ─── GitHub ───────────────────────────────────────────────
-  async function ghSha(path) {
-    try {
-      const r = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${path}`,
-        {headers:{"Authorization":`token ${GH_TOK}`}});
-      if (r.ok) { const d=await r.json(); return d.sha||""; }
-    } catch(e){}
-    return "";
+  // Read a file straight from the GitHub Contents API — this is strongly
+  // consistent (reflects the very latest commit immediately), unlike
+  // raw.githubusercontent.com which is served through a CDN and can lag
+  // behind by several seconds after a commit. Any read that happens right
+  // before a write (read-modify-write) MUST use this, or a fast sequence of
+  // pushes (like bulk add) will each read a stale/older version and clobber
+  // each other — leaving only the last write behind.
+  async function ghGetFile(path) {
+    const r = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${path}?t=${Date.now()}`, {
+      headers: GH_TOK ? {"Authorization":`token ${GH_TOK}`} : {},
+      cache: 'no-store'
+    });
+    if (r.status === 404) return { sha: null, content: null };
+    if (!r.ok) throw new Error('ghGetFile failed: '+r.status);
+    const d = await r.json();
+    const content = d.content ? decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))) : null;
+    return { sha: d.sha || null, content };
   }
-  async function ghPush(path, content, msg) {
-    const sha  = await ghSha(path);
+  async function ghSha(path) {
+    try { const f = await ghGetFile(path); return f.sha || ""; }
+    catch(e){ return ""; }
+  }
+  async function ghPush(path, content, msg, shaHint) {
+    const sha  = (shaHint !== undefined) ? shaHint : await ghSha(path);
     const body = {message:msg, content:btoa(unescape(encodeURIComponent(content)))};
     if (sha) body.sha = sha;
     const r = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${path}`,{
@@ -609,6 +665,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     return r.ok;
   }
   async function ghMeta() {
+    // Used for display/sync purposes — fine to read via the fast CDN path.
     try {
       const r = await fetch(`https://raw.githubusercontent.com/${GH_REPO}/main/meta.json?t=${Date.now()}`);
       if (r.ok) return await r.json();
@@ -636,6 +693,8 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     } catch(e){ return null; }
   }
   async function ghChunk(i) {
+    // Bulk/background reads (e.g. full sync) — fast CDN path is fine here
+    // since nothing is being written in the same operation.
     try {
       const r = await fetch(`https://raw.githubusercontent.com/${GH_REPO}/main/chunks/chunk_${i}.json?t=${Date.now()}`);
       if (r.ok) return await r.json();
@@ -650,31 +709,44 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       catch(e) { return false; } // don't guess — a failed meta read must never corrupt totalChunks
 
       const idxs = await ghListChunks();       // authoritative chunk indices, e.g. [0,1,...,104]
-      let ci, chunk, isNewKey;
-      if (idxs && idxs.length) {
+      if (idxs === null) return false;         // can't safely determine chunk layout right now — don't risk overwriting data
+
+      // If this exact subscription number already exists somewhere, update it
+      // IN PLACE in its own chunk (old location is overwritten, not duplicated
+      // into a new chunk). We track key → chunk-index locally (built during
+      // Sync) so this is a single lookup, no extra network round-trip.
+      const knownIdx = await iGet(SC, key);
+
+      let ci, chunk, chunkSha, isNewKey;
+      if (knownIdx !== null && idxs.includes(knownIdx)) {
+        const kf = await ghGetFile(`chunks/chunk_${knownIdx}.json`);
+        chunk    = kf.content ? JSON.parse(kf.content) : {};
+        ci       = knownIdx;
+        chunkSha = kf.sha;
+      } else if (idxs.length) {
         const lastIdx = idxs[idxs.length-1];
-        const lastChunk = await ghChunk(lastIdx) || {};
-        if (Object.keys(lastChunk).length >= CHUNK && !(key in lastChunk)) {
-          ci = lastIdx + 1; chunk = {};
+        // Strongly-consistent read: guarantees we see every key any earlier
+        // push in this same batch just wrote, even microseconds ago.
+        const lf = await ghGetFile(`chunks/chunk_${lastIdx}.json`);
+        const lastChunk = lf.content ? JSON.parse(lf.content) : {};
+        if (key in lastChunk) {
+          ci = lastIdx; chunk = lastChunk; chunkSha = lf.sha;
+        } else if (Object.keys(lastChunk).length >= CHUNK) {
+          ci = lastIdx + 1; chunk = {}; chunkSha = null;
         } else {
-          ci = lastIdx; chunk = lastChunk;
+          ci = lastIdx; chunk = lastChunk; chunkSha = lf.sha;
         }
-      } else if (idxs && idxs.length === 0) {
-        ci = 0; chunk = {};
       } else {
-        // Chunk listing API failed too (e.g. rate-limited) — fall back to meta,
-        // but only ever grow totalChunks, never shrink it.
-        const tot = (meta.totalRecords||0)+1;
-        ci    = Math.floor((tot-1)/CHUNK);
-        chunk = await ghChunk(ci) || {};
+        ci = 0; chunk = {}; chunkSha = null;
       }
       isNewKey = !(key in chunk);
       chunk[key] = val;
 
-      const ok = await ghPush(`chunks/chunk_${ci}.json`, JSON.stringify(chunk), `Add ${key}`);
+      const ok = await ghPush(`chunks/chunk_${ci}.json`, JSON.stringify(chunk), `Add ${key}`, chunkSha);
       if (!ok) return false;
+      await iPut(SC, key, ci); // remember which chunk this key now lives in
 
-      const newTotalChunks = Math.max(meta.totalChunks||1, ci+1, idxs ? idxs.length : 0);
+      const newTotalChunks = Math.max(meta.totalChunks||1, ci+1, idxs.length);
       const newTotalRecords = (meta.totalRecords||0) + (isNewKey ? 1 : 0);
       await ghPush('meta.json', JSON.stringify({
         totalRecords: newTotalRecords,
@@ -704,16 +776,16 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
         const ch = await ghChunk(i);
         if (ch) {
           await iBulk(SM, ch, null);
-          Object.keys(ch).forEach(k=>MEM.set(k,ch[k]));
+          const cmap = {}; Object.keys(ch).forEach(k=>{ cmap[k]=i; MEM.set(k,ch[k]); });
+          await iBulk(SC, cmap, null); // remember which chunk each key lives in
           imp += Object.keys(ch).length;
         }
         el.textContent = `⏳ ${n+1}/${tc} chunks…`;
       }
-      // flush queue
-      const q = await getQueue();
-      for (const it of q) await pushOne(it.key, it.location);
-      await iClear(SQ);
-      refreshQBadge();
+      // flush queue — only remove items that actually succeeded, so a failed
+      // push (e.g. brief network drop mid-sync) is retried later instead of
+      // being silently lost.
+      await flushQueue();
       // ✅ Device registry sync
       await syncUDB();
       loadUserPanel();
@@ -736,11 +808,92 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       showToast(t("toastSyncFail"));
     }
   }
+  async function flushQueue() {
+    const q = await getQueue();
+    let ok=0, fail=0;
+    for (const it of q) {
+      const success = await pushOne(it.key, it.location);
+      if (success) { await iDel(SQ, it.id); ok++; }
+      else fail++;
+    }
+    refreshQBadge();
+    return { ok, fail, total: q.length };
+  }
   async function refreshQBadge() {
     const q = await getQueue();
     const b = document.getElementById('qbadge');
     if (q.length>0){ b.style.display='inline'; b.textContent=q.length+' pending'; }
     else b.style.display='none';
+  }
+
+  // ─── Sync Status Check ──────────────────────────────────────
+  // Answers: "is my data actually on GitHub, or just sitting on this phone?"
+  // Uses the local key→chunk map (SC) built during Sync/push as a record of
+  // what's confirmed on GitHub, plus the pending-upload queue, so it works
+  // even with no internet — and does one extra live check against GitHub's
+  // own record count when online, for real confirmation.
+  async function checkSyncStatus() {
+    const report = document.getElementById('sync-status-report');
+    report.style.display = 'block';
+    report.innerHTML = '⏳ Checking…';
+
+    const localTotal = MEM.size;
+    const scKeys    = new Set(await iKeys(SC));
+    const queue     = await getQueue();
+    const queueKeys = new Set(queue.map(q=>q.key));
+
+    let confirmed = 0, pending = 0, unknown = 0;
+    for (const [k] of MEM) {
+      if (queueKeys.has(k)) pending++;
+      else if (scKeys.has(k)) confirmed++;
+      else unknown++;
+    }
+
+    let html = `
+      <div style="font-weight:700;color:var(--pc);margin-bottom:4px">📊 Sync Status Report</div>
+      <div>📱 Total local records: <b>${localTotal.toLocaleString()}</b></div>
+      <div>✅ Confirmed on GitHub: <b>${confirmed.toLocaleString()}</b></div>
+      <div>⏳ Pending upload (queue): <b>${pending.toLocaleString()}</b></div>`;
+    if (unknown > 0) {
+      html += `<div style="color:#e67e22">⚠️ Unconfirmed status: <b>${unknown.toLocaleString()}</b> <span style="font-size:11px">(added before this check existed, or a push failed silently — tap Sync to confirm)</span></div>`;
+    }
+
+    if (!GH_TOK || !GH_REPO) {
+      html += `<div style="margin-top:8px;color:#e74c3c">❌ GitHub isn't configured — nothing is being saved to the cloud yet. All data above is local-only. Set your Repo &amp; Token above to enable cloud sync.</div>`;
+    } else if (!navigator.onLine) {
+      html += `<div style="margin-top:8px;color:#e67e22">📴 You're offline right now — this report is based on this device's last known status, not a live check. Reconnect and tap this button again to verify against GitHub directly.</div>`;
+    } else {
+      try {
+        const meta = await ghMeta();
+        const remoteTotal = meta.totalRecords || 0;
+        html += `<div style="margin-top:8px">☁️ GitHub reports: <b>${remoteTotal.toLocaleString()}</b> records total</div>`;
+        if (remoteTotal > confirmed) {
+          html += `<div style="color:#e67e22">ℹ️ ${(remoteTotal-confirmed).toLocaleString()} record(s) exist on GitHub that this device hasn't downloaded yet (likely added from another device) — tap 🔄 Sync to pull them in.</div>`;
+        } else if (remoteTotal < confirmed && pending === 0 && unknown === 0) {
+          html += `<div style="color:#e67e22">⚠️ GitHub's own counter looks a bit stale — tap 🔄 Sync once to self-heal it.</div>`;
+        } else {
+          html += `<div style="color:#27ae60">✅ Everything on this device is confirmed saved to GitHub!</div>`;
+        }
+      } catch(e) {
+        html += `<div style="margin-top:8px;color:#e74c3c">❌ Couldn't reach GitHub just now (network or API issue). This may be temporary — try again in a moment.</div>`;
+      }
+    }
+
+    if (pending > 0 && navigator.onLine) {
+      html += `<button class="btn" style="margin-top:10px;padding:9px;font-size:12px" onclick="retryQueueNow()">🔁 Try uploading ${pending} pending record(s) now</button>`;
+    }
+
+    report.innerHTML = html;
+  }
+
+  async function retryQueueNow() {
+    if (!navigator.onLine) { showToast('📴 Still offline'); return; }
+    showToast('⏳ Retrying pending uploads…');
+    const { ok, fail, total } = await flushQueue();
+    if (total === 0) showToast('✅ Nothing pending');
+    else if (fail > 0) showToast(`⚠️ ${ok}/${total} uploaded — ${fail} still failed`);
+    else showToast(`✅ ${ok} record(s) uploaded to GitHub`);
+    checkSyncStatus();
   }
   async function refreshChunkInfo(meta) {
     if (!meta) { try { meta = await ghMeta(); } catch(e) { meta = {totalRecords:0, totalChunks:0}; } }
@@ -844,9 +997,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     }, 2000);
     window.addEventListener('online', async ()=>{
       showToast(t('toastNetwork'));
-      const q = await getQueue();
-      for (const it of q) await pushOne(it.key, it.location);
-      await iClear(SQ); refreshQBadge();
+      await flushQueue();
     });
     setInterval(touchActive, 30000);
   };
@@ -888,7 +1039,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     document.getElementById(sid).classList.add('active');
     if (nid) document.getElementById(nid).classList.add('active');
     if (sid==='s-settings') openSettings();
-    if (sid==='s-add')      { applyRole(); setTimeout(initPicker,200); }
+    if (sid==='s-add')      { applyRole(); setTimeout(initPicker,200); if (bulkDistanceMode) setTimeout(initDistMap,200); }
     if (sid==='s-auth')     { resetAuth(); }
   }
 
@@ -1162,6 +1313,11 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     document.getElementById('single-sub-group').style.display = bulkMode ? 'none'  : 'block';
     document.getElementById('single-st-group').style.display  = bulkMode ? 'none'  : 'block';
     document.getElementById('btn-bulk-toggle').classList.toggle('on', bulkMode);
+    if (!bulkMode) {
+      // Leaving bulk mode entirely — also reset distance mode so state doesn't leak back in
+      const dt = document.getElementById('b-dist-toggle');
+      if (dt && dt.checked) { dt.checked = false; toggleDistanceMode(); }
+    }
     updateBulkPreview();
   }
   function fmtBulkPrefix(inp) {
@@ -1185,7 +1341,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     const prefix = document.getElementById('b-prefix').value.trim();
     const start  = document.getElementById('b-start').value.trim();
     const end    = document.getElementById('b-end').value.trim();
-    const extra  = document.getElementById('b-extra').value.trim();
+    const extra  = bulkDistanceMode ? '' : document.getElementById('b-extra').value.trim();
     if (!/^\d{3}\/\d{2}\/$/.test(prefix)) return { keys:[], error: t('bulkErrPrefix') };
     const nums = new Set();
     if (start !== '' || end !== '') {
@@ -1218,29 +1374,183 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     if (error) {
       el.style.color = '#e74c3c'; el.textContent = error;
       list.style.display = 'none'; list.textContent = '';
+    } else if (bulkDistanceMode) {
+      // In distance mode the per-number location list is shown in dist-summary instead
+      el.textContent = '';
+      list.style.display = 'none';
     } else {
       el.style.color = 'var(--pc)'; el.textContent = `✅ ${keys.length} ${t('bulkPreviewUnit')}`;
       list.textContent = keys.join('\n');
       list.style.display = 'block';
     }
+    if (bulkDistanceMode) updateDistSummary();
   }
+
+  // ─── Distance-based auto location (linear interpolation) ───
+  let bulkDistanceMode = false;
+  let distMap, distMarkerStart, distMarkerEnd, distArmed = null;
+  let distStart = null, distEnd = null;
+
+  function toggleDistanceMode() {
+    bulkDistanceMode = document.getElementById('b-dist-toggle').checked;
+    document.getElementById('dist-mode-panel').style.display  = bulkDistanceMode ? 'block' : 'none';
+    document.getElementById('bulk-extra-group').style.display = bulkDistanceMode ? 'none'  : 'block';
+    document.getElementById('common-loc-group').style.display = bulkDistanceMode ? 'none'  : 'block';
+    document.getElementById('map-pick-group').style.display   = bulkDistanceMode ? 'none'  : 'block';
+    if (bulkDistanceMode) setTimeout(initDistMap, 200);
+    updateBulkPreview();
+  }
+
+  function haversineMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371000, toRad = d => d*Math.PI/180;
+    const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+    return R * 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+  function interpolateLine(lat1, lon1, lat2, lon2, n) {
+    const pts = [];
+    for (let i=0; i<n; i++) {
+      const f = n===1 ? 0 : i/(n-1);
+      pts.push([ lat1+(lat2-lat1)*f, lon1+(lon2-lon1)*f ]);
+    }
+    return pts;
+  }
+
+  const distIcon = (emoji) => L.divIcon({html:`<div style="font-size:22px;line-height:1;transform:translate(-50%,-90%)">${emoji}</div>`, className:'', iconSize:[0,0]});
+
+  function initDistMap() {
+    if (!distMap) {
+      distMap = L.map('dist-map').setView([24.7136,46.6753], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(distMap);
+      distMarkerStart = L.marker([24.7136,46.6753], {draggable:true, icon:distIcon('🟢'), opacity:0}).addTo(distMap);
+      distMarkerEnd   = L.marker([24.7136,46.6753], {draggable:true, icon:distIcon('🔴'), opacity:0}).addTo(distMap);
+      distMarkerStart.on('dragend', () => { const p=distMarkerStart.getLatLng(); setDistPoint('start', p.lat, p.lng, false); });
+      distMarkerEnd.on('dragend',   () => { const p=distMarkerEnd.getLatLng();   setDistPoint('end',   p.lat, p.lng, false); });
+      distMap.on('click', e => {
+        if (distArmed==='start') setDistPoint('start', e.latlng.lat, e.latlng.lng, false);
+        else if (distArmed==='end') setDistPoint('end', e.latlng.lat, e.latlng.lng, false);
+        else showToast('👆 Tap "Set Start" or "Set End" first, then tap the map');
+      });
+    } else distMap.invalidateSize();
+  }
+
+  function armMapTap(which) {
+    distArmed = which;
+    document.getElementById('btn-tap-start').classList.toggle('on', which==='start');
+    document.getElementById('btn-tap-end').classList.toggle('on', which==='end');
+    if (which==='start') showToast('👆 Tap the map to set Start');
+    else if (which==='end') showToast('👆 Tap the map to set End');
+  }
+
+  function setDistPoint(which, lat, lng, recenter) {
+    if (which==='start') {
+      distStart = {lat,lng};
+      document.getElementById('b-start-loc').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      if (distMarkerStart) distMarkerStart.setLatLng([lat,lng]).setOpacity(1);
+      if (distArmed==='start') armMapTap(null);
+    } else {
+      distEnd = {lat,lng};
+      document.getElementById('b-end-loc').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      if (distMarkerEnd) distMarkerEnd.setLatLng([lat,lng]).setOpacity(1);
+      if (distArmed==='end') armMapTap(null);
+    }
+    if (distMap) {
+      if (distStart && distEnd) {
+        distMap.fitBounds([[distStart.lat,distStart.lng],[distEnd.lat,distEnd.lng]], {padding:[40,40]});
+      } else if (recenter !== false) {
+        distMap.setView([lat,lng], 17);
+      }
+    }
+    updateDistSummary();
+  }
+
+  function updateDistSummary() {
+    const el = document.getElementById('dist-summary');
+    if (!el) return;
+    if (!distStart || !distEnd) { el.style.color='#888'; el.textContent = 'Set both Start and End to see a preview.'; return; }
+    const { keys, error } = buildBulkList();
+    if (error) { el.style.color='#e74c3c'; el.textContent = error; return; }
+    const dist = haversineMeters(distStart.lat, distStart.lng, distEnd.lat, distEnd.lng);
+    const n = keys.length;
+    const step = n>1 ? dist/(n-1) : 0;
+    el.style.color = 'var(--pc)';
+    el.textContent = `📏 ${Math.round(dist)}m total — ${n} numbers — ~${step.toFixed(1)}m apart (${keys[0]} → ${keys[n-1]})`;
+  }
+
+  // Simplified promise-based high-accuracy GPS acquisition, reused for the
+  // distance-mode Start/End points (same tiered accuracy strategy as the
+  // main "Use Current Location" button).
+  function acquirePreciseLocation(onProgress) {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) { resolve(null); return; }
+      let best = null, samples = 0, graceTimer = null, done = false;
+      const startTime = Date.now();
+      const HARD=10, SOFT=15, GRACE=6000, MAXD=30000;
+      const wid = navigator.geolocation.watchPosition(
+        p => {
+          samples++;
+          const { latitude, longitude, accuracy } = p.coords;
+          if (!best || accuracy < best.accuracy) best = { latitude, longitude, accuracy };
+          if (onProgress) onProgress(best, samples, Date.now()-startTime);
+          if (best.accuracy <= HARD) finish();
+          else if (best.accuracy <= SOFT) { if (!graceTimer) graceTimer = setTimeout(finish, GRACE); }
+          else if (Date.now()-startTime > MAXD) finish();
+        },
+        () => finish(),
+        { enableHighAccuracy:true, timeout:MAXD, maximumAge:0 }
+      );
+      function finish() {
+        if (done) return; done = true;
+        navigator.geolocation.clearWatch(wid);
+        if (graceTimer) clearTimeout(graceTimer);
+        resolve(best);
+      }
+      setTimeout(finish, MAXD+2000);
+    });
+  }
+
+  async function gpsForDistPoint(which) {
+    const statusEl = document.getElementById(which==='start' ? 'dist-start-status' : 'dist-end-status');
+    if (statusEl) { statusEl.style.display='block'; statusEl.textContent = '📡 Acquiring GPS fix…'; }
+    const res = await acquirePreciseLocation((best, samples, elapsed) => {
+      if (statusEl) statusEl.textContent = `📡 Sample ${samples} — best ±${Math.round(best.accuracy)}m — ${Math.round(elapsed/1000)}s`;
+    });
+    if (!res) {
+      showToast('❌ Could not get GPS location!');
+      if (statusEl) statusEl.textContent = '❌ GPS failed — try again.';
+      return;
+    }
+    setDistPoint(which, res.latitude, res.longitude, true);
+    if (statusEl) statusEl.textContent = `✅ Locked — ±${Math.round(res.accuracy)}m accuracy`;
+    showToast(`📍 ${which==='start' ? 'Start' : 'End'} set — ±${Math.round(res.accuracy)}m accuracy`);
+  }
+
   async function saveBulkEntries() {
     if (myRole==='Viewer') { showToast(t("toastViewerAdd")); return; }
-    const loc = document.getElementById('f-loc').value.trim();
-    if (!loc) { showToast(t("toastEmptyField")); return; }
     const { keys, error } = buildBulkList();
     if (error) { showToast(error); return; }
 
-    const data = {}; keys.forEach(k => data[k] = loc);
     const pw=document.getElementById('bulk-prog-wrap');
     const pf=document.getElementById('bulk-prog-fill');
     const pl=document.getElementById('bulk-prog-lbl');
+
+    let data = {};
+    if (bulkDistanceMode) {
+      if (!distStart || !distEnd) { showToast('❌ Set both Start and End locations first'); return; }
+      const pts = interpolateLine(distStart.lat, distStart.lng, distEnd.lat, distEnd.lng, keys.length);
+      keys.forEach((k,i) => { data[k] = `${pts[i][0].toFixed(6)}, ${pts[i][1].toFixed(6)}`; });
+    } else {
+      const loc = document.getElementById('f-loc').value.trim();
+      if (!loc) { showToast(t("toastEmptyField")); return; }
+      keys.forEach(k => data[k] = loc);
+    }
+
     pw.style.display='block'; pf.style.width='0%'; pl.textContent='';
 
     await iBulk(SM, data, (d,tt)=>{
       const p=~~(d/tt*100); pf.style.width=p+'%'; pl.textContent=`${p}% (${d}/${tt})`;
     });
-    keys.forEach(k => MEM.set(k, loc));
+    keys.forEach(k => MEM.set(k, data[k]));
     touchActive();
 
     if (navigator.onLine) {
@@ -1248,12 +1558,12 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       for (const k of keys) {
         up++;
         pl.textContent = `⏳ ${up}/${keys.length}`;
-        const ok = await pushOne(k, loc);
-        if (!ok) await enqueue(k, loc);
+        const ok = await pushOne(k, data[k]);
+        if (!ok) await enqueue(k, data[k]);
       }
       showToast(`✅ ${keys.length} ${t('bulkSavedUnit')}`);
     } else {
-      for (const k of keys) await enqueue(k, loc);
+      for (const k of keys) await enqueue(k, data[k]);
       refreshQBadge();
       showToast(t("toastOffline"));
     }
@@ -1264,6 +1574,11 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     document.getElementById('b-end').value='';
     document.getElementById('b-extra').value='';
     document.getElementById('f-loc').value='';
+    document.getElementById('b-start-loc').value='';
+    document.getElementById('b-end-loc').value='';
+    distStart = null; distEnd = null;
+    const dt = document.getElementById('b-dist-toggle');
+    if (dt && dt.checked) { dt.checked = false; toggleDistanceMode(); }
     updateBulkPreview();
     go('s-search','n-search');
     updateStats();
@@ -1518,7 +1833,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   }
   async function clearAll() {
     if(!confirm(t("confirmClear"))) return;
-    await iClear(SM); await iClear(SL); await iClear(SQ);
+    await iClear(SM); await iClear(SL); await iClear(SQ); await iClear(SC);
     MEM.clear(); refreshQBadge();
     updateStats(); loadTable();
     showToast(t("toastCleared"));
