@@ -272,7 +272,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 
             <div style="margin-top:12px">
               <label style="font-size:12px;font-weight:700">🟢 Start Location</label>
-              <input type="text" id="b-start-loc" placeholder="lat, lng" readonly>
+              <input type="text" id="b-start-loc" placeholder="lat, lng" inputmode="decimal" oninput="onDistLocTyped('start', this)">
               <div style="display:flex;gap:8px;margin-top:6px">
                 <button type="button" class="btn btn-out" style="margin:0;padding:9px;font-size:12px" onclick="gpsForDistPoint('start')">📍 GPS</button>
                 <button type="button" class="btn btn-out" id="btn-tap-start" style="margin:0;padding:9px;font-size:12px" onclick="armMapTap('start')">🗺️ Tap Map</button>
@@ -282,7 +282,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 
             <div style="margin-top:12px">
               <label style="font-size:12px;font-weight:700">🔴 End Location</label>
-              <input type="text" id="b-end-loc" placeholder="lat, lng" readonly>
+              <input type="text" id="b-end-loc" placeholder="lat, lng" inputmode="decimal" oninput="onDistLocTyped('end', this)">
               <div style="display:flex;gap:8px;margin-top:6px">
                 <button type="button" class="btn btn-out" style="margin:0;padding:9px;font-size:12px" onclick="gpsForDistPoint('end')">📍 GPS</button>
                 <button type="button" class="btn btn-out" id="btn-tap-end" style="margin:0;padding:9px;font-size:12px" onclick="armMapTap('end')">🗺️ Tap Map</button>
@@ -1418,10 +1418,39 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
 
   const distIcon = (emoji) => L.divIcon({html:`<div style="font-size:22px;line-height:1;transform:translate(-50%,-90%)">${emoji}</div>`, className:'', iconSize:[0,0]});
 
+  // ─── Map type toggle (Street ↔ Satellite) ──────────────────
+  // Free tile sources only (no Google API key): OpenStreetMap for the
+  // street/road view, and Esri World Imagery for real aerial photos —
+  // satellite view shows actual buildings everywhere, even where
+  // OpenStreetMap's crowd-sourced building outlines are sparse.
+  function addMapTypeToggle(map) {
+    const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19, attribution: '© OpenStreetMap'
+    }).addTo(map);
+    const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19, attribution: 'Tiles © Esri'
+    });
+    let isSat = false;
+    const ctl = L.control({ position: 'topright' });
+    ctl.onAdd = function() {
+      const div = L.DomUtil.create('div');
+      div.innerHTML = `<button type="button" style="width:36px;height:36px;border-radius:6px;border:2px solid #555;background:#fff;font-size:17px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.3)" title="Toggle satellite view">🛰️</button>`;
+      L.DomEvent.disableClickPropagation(div);
+      const btn = div.querySelector('button');
+      btn.onclick = () => {
+        isSat = !isSat;
+        if (isSat) { map.removeLayer(streetLayer); satLayer.addTo(map); btn.textContent = '🗺️'; }
+        else       { map.removeLayer(satLayer); streetLayer.addTo(map); btn.textContent = '🛰️'; }
+      };
+      return div;
+    };
+    ctl.addTo(map);
+  }
+
   function initDistMap() {
     if (!distMap) {
       distMap = L.map('dist-map').setView([24.7136,46.6753], 12);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(distMap);
+      addMapTypeToggle(distMap);
       distMarkerStart = L.marker([24.7136,46.6753], {draggable:true, icon:distIcon('🟢'), opacity:0}).addTo(distMap);
       distMarkerEnd   = L.marker([24.7136,46.6753], {draggable:true, icon:distIcon('🔴'), opacity:0}).addTo(distMap);
       distMarkerStart.on('dragend', () => { const p=distMarkerStart.getLatLng(); setDistPoint('start', p.lat, p.lng, false); });
@@ -1443,14 +1472,20 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   }
 
   function setDistPoint(which, lat, lng, recenter) {
+    applyDistPoint(which, lat, lng, recenter);
+    const fieldId = which==='start' ? 'b-start-loc' : 'b-end-loc';
+    document.getElementById(fieldId).value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+  }
+
+  // Updates state + marker + map, WITHOUT touching the input field's value
+  // (used while the person is manually typing, so we don't fight their cursor).
+  function applyDistPoint(which, lat, lng, recenter) {
     if (which==='start') {
       distStart = {lat,lng};
-      document.getElementById('b-start-loc').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
       if (distMarkerStart) distMarkerStart.setLatLng([lat,lng]).setOpacity(1);
       if (distArmed==='start') armMapTap(null);
     } else {
       distEnd = {lat,lng};
-      document.getElementById('b-end-loc').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
       if (distMarkerEnd) distMarkerEnd.setLatLng([lat,lng]).setOpacity(1);
       if (distArmed==='end') armMapTap(null);
     }
@@ -1462,6 +1497,21 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
       }
     }
     updateDistSummary();
+  }
+
+  // Lets the person type "lat, lng" (or "lat lng") directly into the Start/End
+  // fields. Only updates the map/state once a valid pair is typed — partial
+  // input while typing is simply left alone.
+  function onDistLocTyped(which, inp) {
+    const m = inp.value.trim().match(/^(-?\d+(?:\.\d+)?)[,\s]+(-?\d+(?:\.\d+)?)$/);
+    if (!m) {
+      if (which==='start') distStart = null; else distEnd = null;
+      updateDistSummary();
+      return;
+    }
+    const lat = parseFloat(m[1]), lng = parseFloat(m[2]);
+    if (isNaN(lat) || isNaN(lng) || lat<-90 || lat>90 || lng<-180 || lng>180) return;
+    applyDistPoint(which, lat, lng, true);
   }
 
   function updateDistSummary() {
@@ -1635,7 +1685,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
   function initPicker() {
     if (!picker) {
       picker  = L.map('pick-map').setView([24.7136,46.6753],11);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(picker);
+      addMapTypeToggle(picker);
       pickerM = L.marker([24.7136,46.6753],{draggable:true}).addTo(picker);
       pickerM.on('dragend',()=>setLocField(pickerM.getLatLng().lat,pickerM.getLatLng().lng));
       picker.on('click',e=>{ pickerM.setLatLng(e.latlng); setLocField(e.latlng.lat,e.latlng.lng); });
@@ -1939,9 +1989,7 @@ hr.div{border:0;border-top:1px solid var(--bd);margin:18px 0}
     if (!nearbyMap) {
       nearbyMap = L.map('nearby-map', { zoomControl: true, attributionControl: false })
         .setView([lat, lng], 15);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19
-      }).addTo(nearbyMap);
+      addMapTypeToggle(nearbyMap);
       nearbyLayers = L.layerGroup().addTo(nearbyMap);
       // Shrink attribution
       L.control.attribution({ prefix: '© OSM' }).addTo(nearbyMap);
